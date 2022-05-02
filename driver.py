@@ -3,14 +3,16 @@ import os
 from gooey import Gooey, GooeyParser
 from difflib import SequenceMatcher
 
-#Use gooey
-
 @Gooey
 def parse_args():
-    parser = GooeyParser(description="Speeder") 
-    parser.add_argument('source_directory_video', widget="DirChooser")
-    parser.add_argument('source_directory_subtitle', widget="DirChooser")
-    parser.add_argument('key_phrase', widget="Textarea")
+    parser = GooeyParser(description="Speeder")
+    subparsers = parser.add_subparsers(required=True)
+    input_menu = subparsers.add_parser("input")
+    output_menu = subparsers.add_parser("output")
+    input_menu.add_argument('source_directory_video', metavar="Video Files Directory", widget="DirChooser")
+    input_menu.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
+    input_menu.add_argument('key_phrase', metavar="Search Phrase")
+    output_menu.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
     return parser.parse_args()
 
 args = parse_args()
@@ -33,7 +35,6 @@ def findSubtitleFile(source_directory_subtitle, video_file_name):
         if(subtitle_file_name.lower().endswith(".srt")):
             if(SequenceMatcher(None, subtitle_file_name, video_file_name).ratio() > 0.75):
                 source_text = open(subtitle_file_name, "r")
-                print(subtitle_file_name + " " + video_file_name)
                 return source_text
     return None
 
