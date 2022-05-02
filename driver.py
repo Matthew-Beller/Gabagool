@@ -45,7 +45,7 @@ for video_file_name in os.listdir(source_directory_video):
         subtitles_list = list(subtitle_generator)
 
         for entry in subtitles_list:
-            if(entry.content.find(key_phrase) != -1):
+            if(entry.content.lower().find(key_phrase.lower()) != -1):
                 print(entry.content)
     else:
         subtitle_not_found_list.append(video_file_name)
