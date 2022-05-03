@@ -50,6 +50,8 @@ for video_file_name in os.listdir(source_directory_video):
 
         subtitles_list = list(subtitle_generator)
 
+        os.chdir(output_directory)
+
         found_matches_file_name = source_directory_video + "found phrases" + ".txt"
         try:
             found_matches_file = open(found_matches_file_name,"x")
