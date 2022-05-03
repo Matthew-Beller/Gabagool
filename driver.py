@@ -29,8 +29,9 @@ save_style = args.save_style
 output_directory = args.output_directory
 
 
-os.chdir(source_directory_video)
+key_phrase_clean = ''.join(filter(str.isalnum, key_phrase)) 
 
+os.chdir(source_directory_video)
 
 subtitle_not_found_list = []
 
@@ -50,9 +51,9 @@ for video_file_name in os.listdir(source_directory_video):
 
         subtitles_list = list(subtitle_generator)
 
+        found_matches_file_name = video_file_name + "found phrases" + ".txt"
         os.chdir(output_directory)
-
-        found_matches_file_name = source_directory_video + "found phrases" + ".txt"
+        print(os.getcwd())
         try:
             found_matches_file = open(found_matches_file_name,"x")
         except:
@@ -62,7 +63,9 @@ for video_file_name in os.listdir(source_directory_video):
         found_matches_file = open(found_matches_file_name,"a")
 
         for entry in subtitles_list:
-            if(entry.content.lower().find(key_phrase.lower()) != -1):
+            entry_clean = ''.join(filter(str.isalnum, entry.content)) 
+            print("Enrtry: " + entry_clean.lower() + "key_phrase_clean.lower()" + key_phrase_clean.lower())
+            if(entry_clean.lower().find(key_phrase_clean.lower()) != -1):
                 found_matches_file.write(entry.content)
 
         found_matches_file.close()
