@@ -1,27 +1,28 @@
 import srt
 import os
 from gooey import Gooey, GooeyParser
+import argparse
 from difflib import SequenceMatcher
 
 @Gooey
-def parse_args():
+def prompt_user():
     parser = GooeyParser(description="Speeder")
-    subparsers = parser.add_subparsers(required=True)
-    input_menu = subparsers.add_parser("input")
-    output_menu = subparsers.add_parser("output")
-    input_menu.add_argument('source_directory_video', metavar="Video Files Directory", widget="DirChooser")
-    input_menu.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
-    input_menu.add_argument('key_phrase', metavar="Search Phrase")
-    output_menu.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
+
+    parser.add_argument('source_directory_video', metavar="Video Files Directory", widget="DirChooser")
+    parser.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
+    parser.add_argument('key_phrase', metavar="Search Phrase")
+
+    parser.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
+    
     return parser.parse_args()
 
-args = parse_args()
+args = prompt_user()
 
 source_directory_video = args.source_directory_video
-
 source_directory_subtitle = args.source_directory_subtitle
-
 key_phrase = args.key_phrase
+
+output_directory = args.output_directory
 
 
 os.chdir(source_directory_video)
@@ -45,8 +46,19 @@ for video_file_name in os.listdir(source_directory_video):
 
         subtitles_list = list(subtitle_generator)
 
+        found_matches_file_name = source_directory_video + "found phrases" + ".txt"
+        try:
+            found_matches_file = open(found_matches_file_name,"x")
+        except:
+            print(found_matches_file_name + "already exists.")
+            continue
+
+        found_matches_file = open(found_matches_file_name,"a")
+
         for entry in subtitles_list:
             if(entry.content.lower().find(key_phrase.lower()) != -1):
-                print(entry.content)
+                found_matches_file.write(entry.content)
+
+        found_matches_file.close()
     else:
         subtitle_not_found_list.append(video_file_name)
