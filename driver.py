@@ -12,6 +12,8 @@ def prompt_user():
     parser.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
     parser.add_argument('key_phrase', metavar="Search Phrase")
 
+    parser.add_argument("save_style", metavar="Save Style", widget="Dropdown", choices=['One file', 'File for each folder', 'File for each video'])
+
     parser.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
     
     return parser.parse_args()
@@ -21,6 +23,8 @@ args = prompt_user()
 source_directory_video = args.source_directory_video
 source_directory_subtitle = args.source_directory_subtitle
 key_phrase = args.key_phrase
+
+save_style = args.save_style
 
 output_directory = args.output_directory
 
