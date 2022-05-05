@@ -132,10 +132,6 @@ def find_video_matches(intial_directory, output_directory, video_subfolder):
         if(os.path.isfile(os.path.join(intial_directory, video_file_name))):
             subtitle_file = find_subtitle_file(source_directory_subtitle, video_file_name)
             if(subtitle_file != None):
-                with open(subtitle_file, encoding='utf-8-sig') as file:
-                    subtitle_generator = srt.parse(file)
-
-                    subtitles_list = list(subtitle_generator)
                 if(save_style_num == 2):
                     found_matches_file_name = video_file_name + ".txt"
                 elif(save_style_num == 0):
@@ -151,15 +147,24 @@ def find_video_matches(intial_directory, output_directory, video_subfolder):
 
                 found_matches_file = open(found_matches_file_name,"a")
 
-                for entry in subtitles_list:
-                    entry_clean = ''.join(filter(str.isalnum, entry.content)) 
-                    entry_clean = entry_clean.lower()
-                    if(entry_clean.find(key_phrase_clean) != -1):
-                        found_matches_file.write(entry.content)
-
-                found_matches_file.close()
+                find_matching_entries(subtitle_file, key_phrase, found_matches_file)
             else:
                 subtitle_not_found_list.append(video_file_name)
+
+def find_matching_entries(subtitle_file, key_phrase, found_matches_file):
+    with open(subtitle_file, encoding='utf-8-sig') as file:
+        subtitle_generator = srt.parse(file)
+
+        subtitles_list = list(subtitle_generator)
+
+    for entry in subtitles_list:
+        entry_clean = ''.join(filter(str.isalnum, entry.content)) 
+        entry_clean = entry_clean.lower()
+        if(entry_clean.find(key_phrase_clean) != -1):
+            found_matches_file.write(entry.content)
+
+    found_matches_file.close()
+
 
 #TODO: turn code into more functions
 
