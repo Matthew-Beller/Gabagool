@@ -89,22 +89,22 @@ def find_subtitle_file(source_directory_subtitle, video_file_name):
 
 
 def find_video_matches(intial_directory, output_directory, video_subfolder):
+    output_file_directory = output_directory
     if(video_subfolder is not None):
         directory_created = False
         directory_copy_count = 0
-        while(not directory_created):
-            if(directory_copy_count == 0):
-                output_file_directory = os.path.join(output_directory, video_subfolder.name)
-            else:
-                output_file_directory = os.path.join(output_directory, video_subfolder.name + "(" + str(directory_copy_count) + ")")
-            try:
-                    os.mkdir(output_file_directory)   
-                    directory_created = True      
-            except:
-                directory_copy_count += 1
-        os.chdir(output_file_directory)
-    else:
-        output_file_directory = output_directory
+        if(save_style_num == 2):
+            while(not directory_created):
+                if(directory_copy_count == 0):
+                    output_file_directory = os.path.join(output_directory, video_subfolder.name)
+                else:
+                    output_file_directory = os.path.join(output_directory, video_subfolder.name + "(" + str(directory_copy_count) + ")")
+                try:
+                        os.mkdir(output_file_directory)   
+                        directory_created = True      
+                except:
+                    directory_copy_count += 1
+    os.chdir(output_file_directory)
     for video_file_name in os.listdir(intial_directory):
         if(os.path.isfile(os.path.join(intial_directory, video_file_name))):
             subtitle_file = find_subtitle_file(source_directory_subtitle, video_file_name)
@@ -115,14 +115,16 @@ def find_video_matches(intial_directory, output_directory, video_subfolder):
                     subtitles_list = list(subtitle_generator)
                 if(save_style_num == 2):
                     found_matches_file_name = video_file_name + ".txt"
+                elif(save_style_num == 0):
+                    found_matches_file_name = os.path.basename(source_directory_video) + ".txt"
                 else:
                     found_matches_file_name = os.path.basename(intial_directory) + ".txt"
                 os.chdir(output_file_directory)
                 try:
                     found_matches_file = open(found_matches_file_name,"x")
                 except:
-                    print(found_matches_file_name + "already exists.")
-                    continue
+                    if(save_style_num == 2):
+                        print(found_matches_file_name + "already exists.")
 
                 found_matches_file = open(found_matches_file_name,"a")
 
