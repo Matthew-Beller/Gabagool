@@ -8,47 +8,70 @@ from difflib import SequenceMatcher
 @Gooey
 def prompt_user():
     parser = GooeyParser(description="Speeder")
+    subparser = parser.add_subparsers(dest='action')
+    subparser.required = True
 
-    parser.add_argument('source_directory_video', metavar="Video Files Directory", widget="DirChooser")
-    parser.add_argument('--ignore_video', metavar="Ignore Phrase Video", help="Ignore a certain phrase in video file names", nargs="?", const="", default="", type=str, required=False)
-    parser.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
-    parser.add_argument('--ignore_subtitle', metavar="Ignore Phrase Subtitle", help="Ignore a certain phrase in subtitle file names", nargs="?", const="", default="", type=str, required=False)
-    parser.add_argument('key_phrase', metavar="Search Phrase")
+    single_file = subparser.add_parser("Single")
+    batch_files = subparser.add_parser("Batch")
 
-    parser.add_argument("save_style", metavar="Save Style", widget="Dropdown", choices=['One file', 'File for each folder', 'File for each video'])
+    single_file.add_argument('source_file_video', metavar="Video File", widget="FileChooser")
+    single_file.add_argument('source_file_subtitle', metavar="Subtitle File", widget="FileChooser")
+    single_file.add_argument('key_phrase', metavar="Search Phrase")
+    single_file.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
 
-    parser.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
+    batch_files.add_argument('source_directory_video', metavar="Video Files Directory", widget="DirChooser")
+    batch_files.add_argument('--ignore_video', metavar="Ignore Phrase Video", help="Ignore a certain phrase in video file names", nargs="?", const="", default="", type=str, required=False)
+    batch_files.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
+    batch_files.add_argument('--ignore_subtitle', metavar="Ignore Phrase Subtitle", help="Ignore a certain phrase in subtitle file names", nargs="?", const="", default="", type=str, required=False)
+    batch_files.add_argument('key_phrase', metavar="Search Phrase")
+    batch_files.add_argument("save_style", metavar="Save Style", widget="Dropdown", choices=['One file', 'File for each folder', 'File for each video'])
+    batch_files.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
     
     return parser.parse_args()
 
 args = prompt_user()
 
-source_directory_video = args.source_directory_video
-ignore_video = args.ignore_video
+if(args.action == 'Single'):
+    source_file_video = args.source_file_video
+    source_file_subtitle = args.source_file_subtitle
 
-source_directory_subtitle = args.source_directory_subtitle
-ignore_subtitle = args.ignore_subtitle
+    key_phrase = args.key_phrase
 
-key_phrase = args.key_phrase
+    output_directory = args.output_directory
 
-save_style = args.save_style
+    key_phrase_clean = ''.join(filter(str.isalnum, key_phrase))
+    key_phrase_clean = key_phrase_clean.lower()
 
-output_directory = args.output_directory
+elif(args.action == 'Batch'):
+    source_directory_video = args.source_directory_video
+    ignore_video = args.ignore_video
 
-key_phrase_clean = ''.join(filter(str.isalnum, key_phrase))
-key_phrase_clean = key_phrase_clean.lower()
+    source_directory_subtitle = args.source_directory_subtitle
+    ignore_subtitle = args.ignore_subtitle
 
-if(save_style == 'One file'):
-    save_style_num = 0
-elif (save_style == 'File for each folder'):
-    save_style_num = 1
-elif (save_style == 'File for each video'):
-    save_style_num = 2
+    key_phrase = args.key_phrase
+
+    save_style = args.save_style
+
+    output_directory = args.output_directory
+
+    key_phrase_clean = ''.join(filter(str.isalnum, key_phrase))
+    key_phrase_clean = key_phrase_clean.lower()
+
+    if(save_style == 'One file'):
+        save_style_num = 0
+    elif (save_style == 'File for each folder'):
+        save_style_num = 1
+    elif (save_style == 'File for each video'):
+        save_style_num = 2
+    else:
+        save_style_num = 0
+
+
+    os.chdir(source_directory_video)
 else:
-    save_style_num = 0
+    pass
 
-
-os.chdir(source_directory_video)
 
 subtitle_not_found_list = []
 
@@ -138,27 +161,30 @@ def find_video_matches(intial_directory, output_directory, video_subfolder):
             else:
                 subtitle_not_found_list.append(video_file_name)
 
+#TODO: turn code into more functions
 
+if(args.action == 'Single'):
+    print("placeholder for finding entries of single file")
+elif(args.action == 'Batch'):
+    directory_found = False
 
+    source_directory_video_file_list = os.scandir(source_directory_video)
+    for entry in source_directory_video_file_list:
+        if(entry.is_dir()):
+            directory_found = True
+            os.chdir(os.path.join(source_directory_video, entry))
+            find_video_matches(os.getcwd(), output_directory, entry)
 
-directory_found = False
+    if(not directory_found):
+        os.chdir(source_directory_video)
+        find_video_matches(os.getcwd(), output_directory, None)
 
-source_directory_video_file_list = os.scandir(source_directory_video)
-
-for entry in source_directory_video_file_list:
-    if(entry.is_dir()):
-        directory_found = True
-        os.chdir(os.path.join(source_directory_video, entry))
-        find_video_matches(os.getcwd(), output_directory, entry)
-
-if(not directory_found):
-    os.chdir(source_directory_video)
-    find_video_matches(os.getcwd(), output_directory, None)
-
-if(len(subtitle_not_found_list) == 0):
-    print("All video files matched")
+    if(len(subtitle_not_found_list) == 0):
+        print("All video files matched")
+    else:
+        print("No subtitles found for following video files:")
+        print(subtitle_not_found_list)
+        print("Move subtitle file into subtitle source directory or rename existing subtitle file to match video file name")
 else:
-    print("No subtitles found for following video files:")
-    print(subtitle_not_found_list)
-    print("Move subtitle file into subtitle source directory or rename existing subtitle file to match video file name")
+    pass
 
