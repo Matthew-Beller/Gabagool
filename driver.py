@@ -207,3 +207,8 @@ elif(args.action == 'Batch'):
 else:
     pass
 
+#TODO make subtitle and video function files separate from driver
+# make separate branches for editing these files
+# have obviously different fucitons, one splices video while other searches files
+# make driver only driver and get rid of global variables if possible
+# Add menu for video editing to driver
