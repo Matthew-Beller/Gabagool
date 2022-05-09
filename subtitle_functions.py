@@ -1,7 +1,20 @@
 import os
 from difflib import SequenceMatcher
 import srt
-def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_subtitle, ignore_video):
+
+
+class FoundSubtitleMatch:
+    def __init__(self, label, start, end, content):
+        self.label = label
+        self.start = start
+        self.end = end
+        self.content = content
+
+
+## Changed fixed cleaned
+def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase_subtitle = "", ignore_phrase_video = ""):
+
+    video_file_name_clean = clean_input(video_file_name, ignore_phrase_video)
 
     source_directory_subtitle_file_list = os.scandir(source_directory_subtitle)
 
@@ -12,31 +25,20 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_subtit
             directory_found = True
             os.chdir(os.path.join(source_directory_subtitle, entry.name))
             for subtitle_file_name in os.listdir(os.getcwd()):
-                if(subtitle_file_name.lower().endswith(".srt")):
-                    subtitle_file_name_clean = subtitle_file_name.replace(ignore_subtitle, "")
-                    subtitle_file_name_clean = ''.join(filter(str.isalnum, subtitle_file_name_clean))
-                    subtitle_file_name_clean = subtitle_file_name_clean.lower()
-                    video_file_name_clean = video_file_name.replace(ignore_video, "")
-                    video_file_name_clean = ''.join(filter(str.isalnum, video_file_name_clean))
-                    video_file_name_clean = video_file_name_clean.lower()
-
+                if(subtitle_file_name.endswith(".srt")):
+                    subtitle_file_name_clean = clean_input(subtitle_file_name, ignore_phrase_subtitle)
                     if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() > 0.70):
                         return os.path.join(os.getcwd(), subtitle_file_name)
     if(not directory_found):
         os.chdir(source_directory_subtitle)
         for subtitle_file_name in os.listdir(os.getcwd()):
             if(subtitle_file_name.endswith(".srt")):
-                subtitle_file_name_clean = subtitle_file_name.replace(ignore_subtitle, "")
-                subtitle_file_name_clean = ''.join(filter(str.isalnum, subtitle_file_name_clean))
-                subtitle_file_name_clean = subtitle_file_name_clean.lower()
-                video_file_name_clean = video_file_name.replace(ignore_video, "")
-                video_file_name_clean = ''.join(filter(str.isalnum, video_file_name_clean))
-                video_file_name_clean = video_file_name_clean.lower()
+                subtitle_file_name_clean = clean_input(subtitle_file_name, ignore_phrase_subtitle)
                 if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() > 0.70):
                     return os.path.join(os.getcwd(), subtitle_file_name)
     return None
 
-def find_video_matches(source_directory_subtitle, source_directory_video, intial_directory, output_directory, video_subfolder, save_style_num, key_phrase_clean, ignore_subtitle, ignore_video):
+def find_video_matches(source_directory_subtitle, source_directory_video, intial_directory, output_directory, video_subfolder, save_style_num, key_phrase, ignore_subtitle, ignore_video):
     output_file_directory = output_directory
     if(video_subfolder is not None):
         directory_created = False
@@ -61,34 +63,35 @@ def find_video_matches(source_directory_subtitle, source_directory_video, intial
 
                 os.chdir(output_file_directory)
 
-                find_matching_entries(subtitle_file, key_phrase_clean, found_matches_file, os.path.abspath(video_file_name))
+                find_matching_entries(subtitle_file, key_phrase, found_matches_file, os.path.abspath(video_file_name))
             else:
                 return video_file_name
     return None
 
-def find_matching_entries(subtitle_file, key_phrase, found_matches_file, video_file_path):
+## Changed Fixed
+def find_matching_entries(subtitle_file, key_phrase, entry_label):
+    found_matches_list = []
+    
     with open(subtitle_file, encoding='utf-8-sig') as file:
         subtitle_generator = srt.parse(file)
 
         subtitles_list = list(subtitle_generator)
 
     for entry in subtitles_list:
-        entry_clean = ''.join(filter(str.isalnum, entry.content)) 
-        entry_clean = entry_clean.lower()
-        key_phrase_clean = ''.join(filter(str.isalnum, key_phrase))
-        key_phrase_clean = key_phrase_clean.lower()
+        entry_clean = clean_input(entry.content)
+
+        key_phrase_clean = clean_input(key_phrase)
+
         if(entry_clean.find(key_phrase_clean) != -1):
-            found_matches_file.write(video_file_path + "\n")
-            found_matches_file.write(str(entry.start) + " --> " + str(entry.end) + "\n")
-            found_matches_file.write(entry.content + "\n\n")
+            found_matches_list.append(FoundSubtitleMatch(entry_label, entry.start, entry.end, entry.content))
 
-    found_matches_file.close()
+    return found_matches_list
 
-def find_output_file(video_file_name, save_style_num, source_directory_video, intial_directory = None):
+def find_output_file(source_directory, file_name, save_style_num, intial_directory = None):
     if(save_style_num == 2 or save_style_num == 4):
-        found_matches_file_name = video_file_name + ".txt"
+        found_matches_file_name = file_name + ".txt"
     elif(save_style_num == 0):
-        found_matches_file_name = os.path.basename(source_directory_video) + ".txt"
+        found_matches_file_name = os.path.basename(source_directory) + ".txt"
     else:
         found_matches_file_name = os.path.basename(intial_directory) + ".txt"
     try:
@@ -99,3 +102,10 @@ def find_output_file(video_file_name, save_style_num, source_directory_video, in
     found_matches_file = open(found_matches_file_name,"a")
 
     return found_matches_file
+
+def clean_input(file_name, ignore_phrase):
+    file_name_clean = file_name.replace(ignore_phrase, "")
+    file_name_clean = ''.join(filter(str.isalnum, file_name_clean))
+    file_name_clean = file_name_clean.lower()
+
+    return file_name_clean
