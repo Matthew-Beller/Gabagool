@@ -84,8 +84,14 @@ subtitle_not_found_list = []
 
 if(args.action == 'Single'):
     os.chdir(output_directory)
-    output_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num, source_directory_video)
-    subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase, output_file, source_file_video)
+    found_matches_file = subtitle_functions.find_output_file(source_directory_video, os.path.basename(source_file_video), save_style_num)
+    found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase, source_file_video)
+
+    for found_entry in found_entries:
+        found_matches_file.write(found_entry.label + "\n")
+        found_matches_file.write(str(found_entry.start) + " --> " + str(found_entry.end) + "\n")
+        found_matches_file.write(found_entry.content + "\n\n")
+        
 elif(args.action == 'Batch'):
     directory_found = False
 

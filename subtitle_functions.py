@@ -40,6 +40,7 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase
 
 def find_video_matches(source_directory_subtitle, source_directory_video, intial_directory, output_directory, video_subfolder, save_style_num, key_phrase, ignore_subtitle, ignore_video):
     output_file_directory = output_directory
+
     if(video_subfolder is not None):
         directory_created = False
         directory_copy_count = 0
@@ -54,16 +55,24 @@ def find_video_matches(source_directory_subtitle, source_directory_video, intial
                         directory_created = True      
                 except:
                     directory_copy_count += 1
+
     os.chdir(output_file_directory)
+
     for video_file_name in os.listdir(intial_directory):
         if(os.path.isfile(os.path.join(intial_directory, video_file_name))):
             subtitle_file = find_subtitle_file(source_directory_subtitle, video_file_name, ignore_subtitle, ignore_video)
             if(subtitle_file != None):
-                found_matches_file = find_output_file(video_file_name, save_style_num, source_directory_video, intial_directory)
-
                 os.chdir(output_file_directory)
+                found_matches_file = find_output_file(source_directory_video, video_file_name, save_style_num, intial_directory)
 
-                find_matching_entries(subtitle_file, key_phrase, found_matches_file, os.path.abspath(video_file_name))
+
+                found_entries = find_matching_entries(subtitle_file, key_phrase, os.path.abspath(video_file_name))
+
+                for found_entry in found_entries:
+                    found_matches_file.write(found_entry.label + "\n")
+                    found_matches_file.write(str(found_entry.start) + " --> " + str(found_entry.end) + "\n")
+                    found_matches_file.write(found_entry.content + "\n\n")
+                found_matches_file.close()
             else:
                 return video_file_name
     return None
@@ -103,7 +112,7 @@ def find_output_file(source_directory, file_name, save_style_num, intial_directo
 
     return found_matches_file
 
-def clean_input(file_name, ignore_phrase):
+def clean_input(file_name, ignore_phrase = ""):
     file_name_clean = file_name.replace(ignore_phrase, "")
     file_name_clean = ''.join(filter(str.isalnum, file_name_clean))
     file_name_clean = file_name_clean.lower()
