@@ -83,28 +83,20 @@ subtitle_not_found_list = []
 #TODO: turn code into more functions
 
 if(args.action == 'Single'):
-    os.chdir(output_directory)
-    found_matches_file = subtitle_functions.find_output_file(source_directory_video, os.path.basename(source_file_video), save_style_num)
-    found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase, source_file_video)
+    if(subtitle_functions.check_if_video_file(source_file_video)):
+        os.chdir(output_directory)
+        found_matches_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num)
+        found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase, source_file_video)
 
-    for found_entry in found_entries:
-        found_matches_file.write(found_entry.label + "\n")
-        found_matches_file.write(str(found_entry.start) + " --> " + str(found_entry.end) + "\n")
-        found_matches_file.write(found_entry.content + "\n\n")
+        for found_entry in found_entries:
+            found_matches_file.write(found_entry.label + "\n")
+            found_matches_file.write(str(found_entry.start) + " --> " + str(found_entry.end) + "\n")
+            found_matches_file.write(found_entry.content + "\n\n")
+    else:
+        print("Invalid video file.")
         
 elif(args.action == 'Batch'):
-    directory_found = False
-
-    source_directory_video_file_list = os.scandir(source_directory_video)
-    for entry in source_directory_video_file_list:
-        if(entry.is_dir()):
-            directory_found = True
-            os.chdir(os.path.join(source_directory_video, entry))
-            subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, os.getcwd(), output_directory, entry, save_style_num, key_phrase_clean, ignore_subtitle, ignore_video)
-
-    if(not directory_found):
-        os.chdir(source_directory_video)
-        subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, os.getcwd(), output_directory, None, save_style_num, key_phrase_clean, ignore_subtitle, ignore_video)
+    subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_clean, ignore_subtitle, ignore_video)
 
     if(len(subtitle_not_found_list) == 0):
         print("All video files matched")
