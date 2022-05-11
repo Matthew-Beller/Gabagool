@@ -2,7 +2,6 @@ import os
 from difflib import SequenceMatcher
 import srt
 import subprocess
-import time
 
 class FoundSubtitleMatch:
     def __init__(self, label, start, end, content):
@@ -40,7 +39,6 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase
     return None
 
 def find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase, ignore_subtitle = "", ignore_video = ""):
-    start = time.time()
     output_file_directory = output_directory
 
     source_directory_video_file_list = os.scandir(source_directory_video)
@@ -81,8 +79,6 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                         found_matches_file.write(str(found_entry.start) + " --> " + str(found_entry.end) + "\n")
                         found_matches_file.write(found_entry.content + "\n\n")
                     found_matches_file.close()
-                    end = time.time()
-                    print(end-start)
                 else:
                     return video_file_name
         else:
