@@ -11,9 +11,14 @@ class FoundSubtitleMatch:
         self.content = content
 
 
-## Changed fixed cleaned
-def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase_subtitle = "", ignore_phrase_video = ""):
-
+def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase_subtitle = "", ignore_phrase_video = "", comparison_tolerance = 0.70):
+    """
+    Matches subtitle file to video file based on file names.\n
+    Match is found SequenceMatcher ratio function returns a result greater than comparison tolerance.\n
+    Searches entire subtitle source directory including one subdirectory of depth\n
+    Returns file path to matching subtitle file if successful.\n
+    Returns None on failure.
+    """
     video_file_name_clean = clean_input(video_file_name, ignore_phrase_video)
 
     source_directory_subtitle_file_list = os.scandir(source_directory_subtitle)
@@ -27,22 +32,32 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase
             for subtitle_file_name in os.listdir(os.getcwd()):
                 if(subtitle_file_name.endswith(".srt")):
                     subtitle_file_name_clean = clean_input(subtitle_file_name, ignore_phrase_subtitle)
-                    if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() > 0.70):
+                    if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() >= comparison_tolerance):
                         return os.path.join(os.getcwd(), subtitle_file_name)
-    if(not directory_found):
-        os.chdir(source_directory_subtitle)
-        for subtitle_file_name in os.listdir(os.getcwd()):
-            if(subtitle_file_name.endswith(".srt")):
-                subtitle_file_name_clean = clean_input(subtitle_file_name, ignore_phrase_subtitle)
-                if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() > 0.70):
-                    return os.path.join(os.getcwd(), subtitle_file_name)
+        else:
+            os.chdir(source_directory_subtitle)
+            if(entry.name.endswith(".srt")):
+                subtitle_file_name_clean = clean_input(entry.name, ignore_phrase_subtitle)
+                if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() >= comparison_tolerance):
+                    return os.path.join(os.getcwd(), entry.name)
     return None
 
 def find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase, ignore_subtitle = "", ignore_video = ""):
+    """
+    Find instances of key words within srt files found in subtitle source directroy. Matches these instances with corresponding video files in video source directory.\n
+    Saves files with matching instances, video file directory, times, and contents to output directory.\n
+    Save style 2 or 4 = One file per video\n
+    Save sytle 0 = One large file with all videos\n
+    Save style 1 = One file per sub directory\n
+    Appends existing files same names file is found.\n
+    ignore_subtitle and ignore_video arguments ignore certain phrases with subtitle and video file names when pairing these files together\n
+    """
+
+
     output_file_directory = output_directory
 
     source_directory_video_file_list = os.scandir(source_directory_video)
-
+    # Creates subdirectories to save output based on video source directory sub directories
     for file in source_directory_video_file_list:
         if(file.is_dir()):
             current_video_subdirectory = os.path.join(source_directory_video, file)
@@ -96,15 +111,18 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                         found_matches_file.write(str(found_entry.start) + " --> " + str(found_entry.end) + "\n")
                         found_matches_file.write(found_entry.content + "\n\n")
                     found_matches_file.close()
-                    end = time.time()
-                    print(end-start)
                 else:
                     return video_file_name
 
     return None
 
-## Changed Fixed
 def find_matching_entries(subtitle_file, key_phrase, entry_label):
+    """
+    Finds instances of key word within srt files.\n
+    Returns list of matched phrases including start and end time.\n
+    Entries labeled by label argument\n
+    Returns list of FoundSubtitleMatch objects
+    """
     found_matches_list = []
     
     with open(subtitle_file, encoding='utf-8-sig') as file:
@@ -122,13 +140,21 @@ def find_matching_entries(subtitle_file, key_phrase, entry_label):
 
     return found_matches_list
 
-def find_output_file(file_name, save_style_num, source_directory = None, intial_directory = None):
+def find_output_file(file_name, save_style_num, source_directory = None, sub_directory = None):
+    """
+    Determines output file name based on file name, save style, source directory and sub directory.\n
+    Save style 2 or 4 = One file per video\n
+    Save sytle 0 = One large file with all videos\n
+    Save style 1 = One file per sub directory\n
+    Appends existing files same names file is found.\n
+    Returns file where output will be written.
+    """
     if(save_style_num == 2 or save_style_num == 4 or source_directory == None):
         found_matches_file_name = file_name + ".txt"
     elif(save_style_num == 0):
         found_matches_file_name = os.path.basename(source_directory) + ".txt"
     else:
-        found_matches_file_name = os.path.basename(intial_directory) + ".txt"
+        found_matches_file_name = os.path.basename(sub_directory) + ".txt"
     try:
         found_matches_file = open(found_matches_file_name,"x")
     except:
@@ -139,17 +165,39 @@ def find_output_file(file_name, save_style_num, source_directory = None, intial_
     return found_matches_file
 
 def clean_input(file_name, ignore_phrase = ""):
+    """
+    Removes special characters and spaces from strings.\n
+    Removes ignore phrase if specified.\n
+    Also changes entire string to lowercase.\n
+    Returns cleaned string
+    
+    """
     file_name_clean = file_name.replace(ignore_phrase, "")
+
+    # Removes special characters
     file_name_clean = ''.join(filter(str.isalnum, file_name_clean))
+
     file_name_clean = file_name_clean.lower()
 
     return file_name_clean
 
 def check_if_video_file(path):
+    """
+    When passed a file path, checks if path points to a video file.\n
+    Uses ffprobe to check for compatibilty with MoviePy.\n
+    Returns True if compatible.\n
+    Returns False if not compatible\n
+    """
+
+    # Common video file types that are unquestionably supported by MoviePy
+    # Speeds up performance for most common cases
     if(path.lower().endswith(('.mkv', '.mp4', '.webm', '.mov', '.avi', '.ogv'))):
         return True
     if(os.path.isdir(path)):
         return False
+
+    # If file is an incompatible type, ffprobe will throw an exception.
+    # This is used to detect incompatible file types
     try:
         process = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-count_packets', '-show_entries', 'stream=nb_read_packets,codec_type', '-of', 'csv=p=0', '%s' % str(path)], capture_output=True)
         std_out_str = process.stdout.decode("utf-8")
@@ -163,4 +211,3 @@ def check_if_video_file(path):
     except:
         print("error")
         return False
-
