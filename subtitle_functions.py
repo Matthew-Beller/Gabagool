@@ -88,11 +88,9 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
 
 
                     found_entries = find_matching_entries(subtitle_file, key_phrase, os.path.abspath(video_file_name))
-
                     for found_entry in found_entries:
-                        found_matches_file.write(found_entry.label + "\n")
-                        found_matches_file.write(str(found_entry.start) + " --> " + str(found_entry.end) + "\n")
-                        found_matches_file.write(found_entry.content + "\n\n")
+                        found_entry.proprietary = video_file_path
+                        found_matches_file.write(found_entry.to_srt())
                     found_matches_file.close()
                 else:
                     return video_file_name
@@ -107,9 +105,10 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                     found_entries = find_matching_entries(subtitle_file, key_phrase, os.path.abspath(video_file_name))
 
                     for found_entry in found_entries:
-                        found_matches_file.write(found_entry.label + "\n")
-                        found_matches_file.write(str(found_entry.start) + " --> " + str(found_entry.end) + "\n")
-                        found_matches_file.write(found_entry.content + "\n\n")
+                        # In srt library, proprietary information is stored after time stamp
+                        # To store directory of source video file, path is written in place of the proprietary information
+                        found_entry.proprietary = os.path.abspath(video_file_name)
+                        found_matches_file.write(found_entry.to_srt())
                     found_matches_file.close()
                 else:
                     return video_file_name
@@ -136,7 +135,7 @@ def find_matching_entries(subtitle_file, key_phrase, entry_label):
         key_phrase_clean = clean_input(key_phrase)
 
         if(entry_clean.find(key_phrase_clean) != -1):
-            found_matches_list.append(FoundSubtitleMatch(entry_label, entry.start, entry.end, entry.content))
+            found_matches_list.append(entry)
 
     return found_matches_list
 
@@ -150,11 +149,11 @@ def find_output_file(file_name, save_style_num, source_directory = None, sub_dir
     Returns file where output will be written.
     """
     if(save_style_num == 2 or save_style_num == 4 or source_directory == None):
-        found_matches_file_name = file_name + ".txt"
+        found_matches_file_name = file_name + "_found_entries.srt"
     elif(save_style_num == 0):
-        found_matches_file_name = os.path.basename(source_directory) + ".txt"
+        found_matches_file_name = os.path.basename(source_directory) + "_found_entries.srt"
     else:
-        found_matches_file_name = os.path.basename(sub_directory) + ".txt"
+        found_matches_file_name = os.path.basename(sub_directory) + "_found_entries.srt"
     try:
         found_matches_file = open(found_matches_file_name,"x")
     except:
