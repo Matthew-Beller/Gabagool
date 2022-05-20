@@ -11,6 +11,7 @@ def clipTogetherVideos(subtitle_source, output_directory):
 
       start = time.time()
 
+      GROUPING_COUNT = 8
       clip_list = []
       video_number = 1
       video_counter = 0
@@ -38,10 +39,17 @@ def clipTogetherVideos(subtitle_source, output_directory):
             clip_list.append(VideoFileClip(entry.proprietary).subclip(str(entry.start), str(entry.end)))
 
             video_counter = video_counter + 1
-            if(video_counter == 10):
+            if(video_counter == GROUPING_COUNT):
                video_counter = 0
+               temp_start = time.time()
                temp_clip = concatenate_videoclips(clip_list, method="compose")
+               temp_end = time.time()
+
+               print("\n\n\nconcat" + str(temp_end-temp_start) + "\n\n\n")
+               temp_start = time.time()
                temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
+               temp_end = time.time()
+               print("\n\n\n\nwrite" + str(temp_end-temp_start) + "\n\n\n")
                video_number += 1
                temp_clip.close()
                del temp_clip
@@ -50,10 +58,11 @@ def clipTogetherVideos(subtitle_source, output_directory):
                   clip.close()
                   del clip
                clip_list = []
-         
-         temp_clip = concatenate_videoclips(clip_list, method="compose")
-         temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
-         temp_clip.close()
+         if(len(clip_list) > 0):
+            temp_clip = concatenate_videoclips(clip_list, method="compose")
+            temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
+            temp_clip.close()
+            del temp_clip
 
          for clip in clip_list:
             clip.close()
@@ -66,7 +75,7 @@ def clipTogetherVideos(subtitle_source, output_directory):
 
          file_list = os.listdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)))
 
-         while(len(file_list) > 10):
+         while(len(file_list) > GROUPING_COUNT):
             for clip in clip_list:
                clip.close()
                del clip
@@ -88,11 +97,17 @@ def clipTogetherVideos(subtitle_source, output_directory):
                      clip_list.append(VideoFileClip(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number-1), file)))
                      clip_counter = clip_counter + 1
                      video_counter = video_counter + 1
-                     if(video_counter == 10):
+                     if(video_counter == GROUPING_COUNT):
                         video_counter = 0
+                        temp_start = time.time()
                         temp_clip = concatenate_videoclips(clip_list, method="compose")
+                        temp_end = time.time()
+                        print("\n\n\n\n\n\ncontcattime" + str(temp_end - temp_start) +"\n\n\n\n\n")
                         os.chdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)))
+                        temp_start = time.time()
                         temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
+                        temp_end = time.time()
+                        print("\n\n\n\n\n\nwritetiem:" + str(temp_end - temp_start) + "\n\n\n\n\n\n\n")
                         temp_clip.close()
                         del temp_clip
                         video_number = video_number + 1
@@ -104,10 +119,11 @@ def clipTogetherVideos(subtitle_source, output_directory):
                         clip_list = [] 
 
             os.chdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)))
-            temp_clip = concatenate_videoclips(clip_list, method="compose")
-            temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
-            temp_clip.close()
-            del temp_clip
+            if(len(clip_list) > 0):
+               temp_clip = concatenate_videoclips(clip_list, method="compose")
+               temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
+               temp_clip.close()
+               del temp_clip
             os.chdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number-1)))
             for clip in clip_list:
                clip.close()
@@ -148,7 +164,8 @@ def clipTogetherVideos(subtitle_source, output_directory):
 
          final_clip.close()
          del final_clip
-         
+
          end = time.time()
 
-         print(end - start)
+         print("GROUPING_COUNT: " + str(GROUPING_COUNT))
+         print("Total time: " + str(end - start))
