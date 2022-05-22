@@ -101,7 +101,7 @@ if(args.action == 'Single_Subtitle_File'):
 
         for found_entry in found_entries:
             found_entry.proprietary = source_file_video
-            found_matches_file.write(found_entry.to_srt().encode("utf-8-sig"))
+            found_matches_file.write(found_entry.to_srt())
         found_matches_file.close()
     else:
         print("Invalid video file.")
@@ -121,8 +121,19 @@ elif(args.action == 'Single_Video_File'):
 else:
     pass
 
-#TODO make subtitle and video function files separate from driver
-# make separate branches for editing these files
-# have obviously different fucitons, one splices video while other searches files
-# make driver only driver and get rid of global variables if possible
-# Add menu for video editing to driver
+# Add speeding part of video editing functions
+# Add different save style options for video editing functions
+# Add buffer options for video editing fuctions
+
+# Use ffmpeg to make built in subtitle extractor
+
+# Allow for multople search terms in subtitle search
+# Allow for punctuation and special symbols to matter
+# Enable and disable space ignores
+
+# Warn that results are not 100% accuarate, best results may require manually checking searched file
+
+# Progress bar on video clipping
+
+# come up with better funcdtion name than clippvideos toghet
+

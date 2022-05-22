@@ -2,6 +2,7 @@ import os
 from difflib import SequenceMatcher
 import srt
 import subprocess
+import chardet
 
 class FoundSubtitleMatch:
     def __init__(self, label, start, end, content):
@@ -123,10 +124,19 @@ def find_matching_entries(subtitle_file, key_phrase, entry_label):
     Returns list of FoundSubtitleMatch objects
     """
     found_matches_list = []
-    
-    with open(subtitle_file, encoding='utf-8-sig') as file:
-        subtitle_generator = srt.parse(file)
 
+    with open(subtitle_file, "rb") as file:
+        contents = file.read()
+
+        original_encoding = chardet.detect(contents)
+
+        print(original_encoding)
+        if(original_encoding["encoding"] != "utf-8"):
+            check_file = contents.decode(original_encoding["encoding"]).encode("utf-8")
+        else:
+            check_file = contents
+        subtitle_generator = srt.parse(check_file.decode("utf-8"))
+        
         subtitles_list = list(subtitle_generator)
 
     for entry in subtitles_list:

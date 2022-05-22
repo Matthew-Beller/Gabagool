@@ -30,7 +30,7 @@ def clipTogetherVideos(subtitle_source, output_directory):
       os.chdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)))
 
       print(os.getcwd())
-      with open(subtitle_source, encoding='ISO-8859-1') as file:
+      with open(subtitle_source, encoding='utf-8') as file:
          subtitle_generator = srt.parse(file)
 
          subtitles_list = list(subtitle_generator)
@@ -89,8 +89,6 @@ def clipTogetherVideos(subtitle_source, output_directory):
             os.mkdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)))
             os.chdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number-1)))
 
-            file_list = os.listdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number-1)))
-
             for entity in file_list:
                for file in file_list:
                   if(file == ("TMP_" + source_name + "_" + str(clip_counter) + ".mp4")):
@@ -116,7 +114,8 @@ def clipTogetherVideos(subtitle_source, output_directory):
                            clip.close()
                            del clip
                         del clip_list
-                        clip_list = [] 
+                        clip_list = []
+            file_list = os.listdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number))) 
 
             os.chdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)))
             if(len(clip_list) > 0):
