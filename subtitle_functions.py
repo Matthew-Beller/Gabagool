@@ -1,5 +1,6 @@
 import os
 from difflib import SequenceMatcher
+from numpy import number
 import srt
 import subprocess
 import chardet
@@ -220,3 +221,30 @@ def check_if_video_file(path):
     except:
         print("error")
         return False
+
+
+def extractSubtitles(source_file_video, output_directory):
+    # find location of subtitle steams
+    # extract each locaiton saving to numbered file
+    temp_dir = os.getcwd()
+    if(source_file_video.lower().endswith(('.mkv', '.mp4'))):
+        os.chdir(output_directory)
+        currentStream = 0
+        process = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 's', '-show_entries', 'stream=index', '-of', 'csv=p=0', '%s' % (str(source_file_video))], capture_output=True)
+        std_out_str = process.stdout.decode("utf-8")
+        process_output_list = std_out_str.split("\n")
+        numberOfStreams = len(process_output_list)-1
+        errorStreams = 0
+        while(currentStream < numberOfStreams):
+            try:
+                process = subprocess.run(['ffmpeg', '-i', '%s' % (str(source_file_video)), '-map', '%s' % ('0:s:' + str(currentStream)), '%s' % (os.path.basename(source_file_video) + '_' + str(currentStream) + '_subs.srt')], check=True)
+            except:
+                os.remove(os.path.join(output_directory, (os.path.basename(source_file_video) + '_' + str(currentStream) + '_subs.srt')))
+                errorStreams += 1
+            currentStream += 1
+        print(str(numberOfStreams) + " subtitle tracks found")
+        if(errorStreams > 0):
+            print(str(errorStreams) + " subtitle tracks could not be processed \nThese subtitles may be bitmap based or damaged making them unextractable.")
+        os.chdir(temp_dir)
+    else:
+        print("File must be type must be .mkv or .mp4")
