@@ -4,10 +4,11 @@ from numpy import source
 import srt
 import os
 from datetime import timedelta
+import datetime
 import tempfile
 import time
 
-def clipTogetherVideos(subtitle_source, output_directory):
+def clipTogetherVideos(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end):
 
       start = time.time()
 
@@ -34,8 +35,25 @@ def clipTogetherVideos(subtitle_source, output_directory):
          subtitle_generator = srt.parse(file)
 
          subtitles_list = list(subtitle_generator)
-         for entry in subtitles_list:
+         entry_number = 0
+         buffer_start_datetime = datetime.timedelta(seconds=buffer_seconds_start)
+         buffer_end_datetime = datetime.timedelta(seconds=buffer_seconds_end)
 
+         for entry in subtitles_list:
+            if(entry.start > buffer_start_datetime):
+               entry.start = entry.start - buffer_start_datetime
+            else:
+               entry.start -= entry.start
+            entry.end = entry.end + buffer_end_datetime
+
+         while(entry_number < len(subtitles_list)-1):
+            if(subtitles_list[entry_number].end >= subtitles_list[entry_number+1].start):
+               subtitles_list[entry_number].end = subtitles_list[entry_number+1].end
+               del subtitles_list[entry_number+1]
+            else:
+               entry_number += 1
+
+         for entry in subtitles_list:
             clip_list.append(VideoFileClip(entry.proprietary).subclip(str(entry.start), str(entry.end)))
 
             video_counter = video_counter + 1
