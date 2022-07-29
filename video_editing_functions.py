@@ -8,6 +8,32 @@ import datetime
 import tempfile
 import time
 
+def saveAsIndividualClips(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end):
+   video_number = 1
+   source_name = os.path.basename(subtitle_source)
+
+   os.chdir(output_directory)
+   os.mkdir(os.path.join(output_directory, source_name + "_videos"))
+   os.chdir(os.path.join(output_directory, source_name + "_videos"))
+
+   with open(subtitle_source, encoding='utf-8') as file:
+      subtitle_generator = srt.parse(file)
+
+      subtitles_list = list(subtitle_generator)
+      buffer_start_datetime = datetime.timedelta(seconds=buffer_seconds_start)
+      buffer_end_datetime = datetime.timedelta(seconds=buffer_seconds_end)
+      
+      for entry in subtitles_list:
+         if(entry.start > buffer_start_datetime):
+            entry.start = entry.start - buffer_start_datetime
+         else:
+            entry.start -= entry.start
+         entry.end = entry.end + buffer_end_datetime
+
+   for entry in subtitles_list:
+      VideoFileClip(entry.proprietary).subclip(str(entry.start), str(entry.end)).write_videofile(source_name + "_" + str(video_number) + ".mp4")
+      video_number += 1 
+
 def clipTogetherVideos(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end):
 
       start = time.time()
