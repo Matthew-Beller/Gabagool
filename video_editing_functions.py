@@ -10,7 +10,7 @@ import time
 
 def saveAsIndividualClips(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end):
    video_number = 1
-   source_name = os.path.basename(subtitle_source)
+   source_name = os.path.splitext(os.path.basename(subtitle_source))[0]
 
    os.chdir(output_directory)
    os.mkdir(os.path.join(output_directory, source_name + "_videos"))
@@ -47,7 +47,7 @@ def clipTogetherVideos(subtitle_source, output_directory, buffer_seconds_start, 
 
       round_number = 1
 
-      source_name = os.path.basename(subtitle_source)
+      source_name = os.path.splitext(os.path.basename(subtitle_source))[0]
 
       temp_dir = tempfile.mkdtemp()
       os.chdir(temp_dir)

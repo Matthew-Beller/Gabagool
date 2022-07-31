@@ -160,11 +160,11 @@ def find_output_file(file_name, save_style_num, source_directory = None, sub_dir
     Returns file where output will be written.
     """
     if(save_style_num == 2 or save_style_num == 4 or source_directory == None):
-        found_matches_file_name = file_name + "_found_entries.srt"
+        found_matches_file_name = os.path.splitext(file_name)[0] + "_found_entries.srt"
     elif(save_style_num == 0):
-        found_matches_file_name = os.path.basename(source_directory) + "_found_entries.srt"
+        found_matches_file_name = (os.path.splitext(os.path.basename(source_directory))[0]) + "_found_entries.srt"
     else:
-        found_matches_file_name = os.path.basename(sub_directory) + "_found_entries.srt"
+        found_matches_file_name = (os.path.splitext(os.path.basename(sub_directory))[0]) + "_found_entries.srt"
     try:
         found_matches_file = open(found_matches_file_name,"x")
     except:
@@ -237,7 +237,7 @@ def extractSubtitles(source_file_video, output_directory):
         errorStreams = 0
         while(currentStream < numberOfStreams):
             try:
-                process = subprocess.run(['ffmpeg', '-i', '%s' % (str(source_file_video)), '-map', '%s' % ('0:s:' + str(currentStream)), '%s' % (os.path.basename(source_file_video) + '_' + str(currentStream) + '_subs.srt')], check=True)
+                process = subprocess.run(['ffmpeg', '-i', '%s' % (str(source_file_video)), '-map', '%s' % ('0:s:' + str(currentStream)), '%s' % ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_' + str(currentStream+1) + '_subs.srt')], check=True)
             except:
                 os.remove(os.path.join(output_directory, (os.path.basename(source_file_video) + '_' + str(currentStream) + '_subs.srt')))
                 errorStreams += 1
