@@ -1,3 +1,9 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+import sys
+from time import sleep
+from gooey import Gooey, GooeyParser
+
 from xml.dom import IndexSizeErr
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from numpy import source
@@ -30,8 +36,11 @@ def saveAsIndividualClips(subtitle_source, output_directory, buffer_seconds_star
             entry.start -= entry.start
          entry.end = entry.end + buffer_end_datetime
 
+   total_clips = len(subtitles_list)
+
    for entry in subtitles_list:
-      VideoFileClip(entry.proprietary).subclip(str(entry.start), str(entry.end)).write_videofile(source_name + "_" + str(video_number) + ".mp4")
+      VideoFileClip(entry.proprietary).subclip(str(entry.start), str(entry.end)).write_videofile(source_name + "_" + str(video_number) + ".mp4", logger=None)
+      print(f"progress: {video_number}/{total_clips}")
       video_number += 1 
 
 def clipTogetherVideos(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end):
@@ -78,6 +87,8 @@ def clipTogetherVideos(subtitle_source, output_directory, buffer_seconds_start, 
                del subtitles_list[entry_number+1]
             else:
                entry_number += 1
+
+         
 
          for entry in subtitles_list:
             clip_list.append(VideoFileClip(entry.proprietary).subclip(str(entry.start), str(entry.end)))

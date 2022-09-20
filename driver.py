@@ -8,7 +8,16 @@ from difflib import SequenceMatcher
 import subtitle_functions
 import video_editing_functions
 
-@Gooey
+@Gooey(optional_cols = 2, progress_regex=r"^progress: (?P<current>\d+)/(?P<total>\d+)$",
+        progress_expr="current / total * 100",
+       disable_progress_bar_animation=True,
+       hide_progress_msg=True,
+       timing_options={
+            'show_time_remaining':True,
+            'hide_time_remaining_on_complete':True
+        }
+        )
+       
 def prompt_user():
     parser = GooeyParser(description="Speeder")
     subparser = parser.add_subparsers(dest='action')
