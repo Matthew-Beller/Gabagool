@@ -43,7 +43,7 @@ def saveAsIndividualClips(subtitle_source, output_directory, buffer_seconds_star
       print(f"progress: {video_number}/{total_clips}")
       video_number += 1 
 
-def clipTogetherVideos(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end):
+def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end):
 
       start = time.time()
 

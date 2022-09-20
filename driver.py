@@ -152,7 +152,7 @@ elif(args.action == 'Batch_Subtitle_Files'):
         print("Move subtitle file into subtitle source directory or rename existing subtitle file to match video file name")
 
 elif(args.action == 'Single_Video_File'):
-    video_editing_functions.clipTogetherVideos(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
+    video_editing_functions.mergeMultipleClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
 
 elif(args.action == 'Separate_Video_Files'):
     video_editing_functions.saveAsIndividualClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
@@ -163,9 +163,6 @@ else:
 
 # Add speeding part of video editing functions
 # Add different save style options for video editing functions
-# Add buffer options for video editing fuctions DONE
-
-# Use ffmpeg to make built in subtitle extractor DONE
 
 # Allow for multople search terms in subtitle search
 # Allow for punctuation and special symbols to matter
@@ -174,7 +171,5 @@ else:
 # Warn that results are not 100% accuarate, best results may require manually checking searched file
 
 # Progress bar on video clipping
-
-# come up with better funcdtion name than clippvideos toghet
 
 # fix saving system, support files with same name and remove file extneions from middle of file names
