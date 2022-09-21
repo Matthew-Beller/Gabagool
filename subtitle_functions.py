@@ -44,7 +44,7 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase
                     return os.path.join(os.getcwd(), entry.name)
     return None
 
-def find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase, ignore_subtitle = "", ignore_video = ""):
+def find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase, ignore_spaces, ignore_punctutation, case_sensitive, ignore_subtitle = "", ignore_video = ""):
     """
     Find instances of key words within srt files found in subtitle source directroy. Matches these instances with corresponding video files in video source directory.\n
     Saves files with matching instances, video file directory, times, and contents to output directory.\n
@@ -89,7 +89,7 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                     found_matches_file = find_output_file(video_file_name, save_style_num, source_directory_video, current_video_subdirectory)
 
 
-                    found_entries = find_matching_entries(subtitle_file, key_phrase, os.path.abspath(video_file_name))
+                    found_entries = find_matching_entries(subtitle_file, clean_string(key_phrase, ignore_spaces, ignore_punctutation, case_sensitive), os.path.abspath(video_file_name))
                     for found_entry in found_entries:
                         found_entry.proprietary = video_file_path
                         found_matches_file.write(found_entry.to_srt())
@@ -104,7 +104,7 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                     found_matches_file = find_output_file(video_file_name, save_style_num, source_directory_video, current_video_subdirectory)
 
 
-                    found_entries = find_matching_entries(subtitle_file, key_phrase, os.path.abspath(video_file_name))
+                    found_entries = find_matching_entries(subtitle_file, clean_string(key_phrase, ignore_spaces, ignore_punctutation, case_sensitive), os.path.abspath(video_file_name), ignore_spaces, ignore_punctutation)
 
                     for found_entry in found_entries:
                         # In srt library, proprietary information is stored after time stamp
@@ -117,7 +117,7 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
 
     return None
 
-def find_matching_entries(subtitle_file, key_phrase, entry_label):
+def find_matching_entries(subtitle_file, key_phrase, entry_label, ignore_spaces, ignore_punctuation, case_sensitive):
     """
     Finds instances of key word within srt files.\n
     Returns list of matched phrases including start and end time.\n
@@ -190,6 +190,23 @@ def clean_input(file_name, ignore_phrase = ""):
     file_name_clean = file_name_clean.lower()
 
     return file_name_clean
+
+def clean_string(string, ignore_spaces, ignore_punctutation, case_sensitive):
+    clean_string = string
+    if(not case_sensitive):
+        clean_string = clean_string.lower()
+        
+    if(ignore_punctutation):
+        punctuation_list = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+        clean_string = string
+        for char in clean_string:
+            if char in punctuation_list:
+                clean_string = clean_string.replace(char, "")
+
+    if(ignore_spaces):
+        clean_string = clean_string.replace(' ', "")
+
+    return clean_string
 
 def check_if_video_file(path):
     """
