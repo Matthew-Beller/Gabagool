@@ -125,6 +125,7 @@ def find_matching_entries(subtitle_file, key_phrase, entry_label, ignore_spaces,
     Returns list of FoundSubtitleMatch objects
     """
     found_matches_list = []
+    key_phrase_clean = clean_string(key_phrase, ignore_spaces, ignore_punctuation, case_sensitive)
 
     with open(subtitle_file, "rb") as file:
         contents = file.read()
@@ -141,9 +142,8 @@ def find_matching_entries(subtitle_file, key_phrase, entry_label, ignore_spaces,
         subtitles_list = list(subtitle_generator)
 
     for entry in subtitles_list:
-        entry_clean = clean_input(entry.content)
+        entry_clean = clean_string(entry.content, ignore_spaces, ignore_punctuation, case_sensitive)
 
-        key_phrase_clean = clean_input(key_phrase)
 
         if(entry_clean.find(key_phrase_clean) != -1):
             found_matches_list.append(entry)
@@ -193,6 +193,10 @@ def clean_input(file_name, ignore_phrase = ""):
 
 def clean_string(string, ignore_spaces, ignore_punctutation, case_sensitive):
     clean_string = string
+
+    print("ignore_spaces: " + str(ignore_spaces))
+    print("ignore_punctutation: " + str(ignore_punctutation))
+    print("case_sensitive: " + str(case_sensitive))
     if(not case_sensitive):
         clean_string = clean_string.lower()
         
@@ -202,6 +206,7 @@ def clean_string(string, ignore_spaces, ignore_punctutation, case_sensitive):
         for char in clean_string:
             if char in punctuation_list:
                 clean_string = clean_string.replace(char, "")
+
 
     if(ignore_spaces):
         clean_string = clean_string.replace(' ', "")
