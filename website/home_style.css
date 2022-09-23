@@ -81,6 +81,42 @@ body{
     padding-bottom: 200px;
 }
 
+#button--download{
+    display: flex;
+    align-items: center;
+    top: 0;
+    left: 0;
+    margin: auto;
+    right: 0;
+    width: 100%;
+    background-color: #3f7cac;
+    border-radius: 5px;
+    font-size: 60px;
+    font-family: 'Roboto', sans-serif;
+    color: #f8f9fa;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    padding-left: 100px;
+    padding-right: 100px;
+    text-decoration: none;
+}
+
+a:link {
+text-decoration: none;
+}
+
+a:visited {
+text-decoration: none;
+}
+
+a:hover {
+text-decoration: none;
+}
+
+a:active {
+text-decoration: none;
+}
+
 #page-container {
 position: relative;
 min-height: 100vh;
