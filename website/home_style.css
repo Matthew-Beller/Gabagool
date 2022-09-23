@@ -33,7 +33,7 @@ body{
     margin-top: 10px;
 }
 
-.content--first{
+.main-display{
     display: flex;
     align-items: center;
     align-content: center;
@@ -48,70 +48,18 @@ body{
     height: 500px;
 }
 
-.content--second{
-    display: flex;
-    flex-direction: column;
-    top: 0;
-    left: 0;
-    margin: auto;
-    right: 0;
-    width: 100%;
+#content-info-wrapper-1{
     background-color: #f8f9fa;
-    height: 300px;
-    padding-left: 250px;
-    padding-right: 250px;
-    padding-top: 50px;
 }
 
-#content--second_body{
-    padding-left: 30px;
-    font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    font-weight: 300;
-    color: #495057;
-}
-
-#content--second_header{
-    font-size: 30px;
-    font-weight: 300;
-    font-family: 'Roboto', sans-serif;
-    color: #1266a7;
-}
-
-.content--third{
-    display: flex;
-
-    flex-direction: column;
-    top: 0;
-    left: 0;
-    margin: auto;
-    right: 0;
-    width: 100%;
+#content-info-wrapper-2{
     background-color: #ffffff;
-    height: 300px;
-    padding-left: 250px;
-    padding-right: 250px;
-    padding-top: 50px;
 }
 
-#content--third_body{
-    padding-left: 30px;
-    
-    font-family: 'Roboto', sans-serif;
-    font-size: 15px;
-    font-size: 20px;
-    font-weight: 300;
-    color: #495057;
+#content-info-wrapper-3{
+    background-color: #f8f9fa;
 }
-
-#content--third_header{
-    font-size: 30px;
-    font-weight: 300;
-    font-family: 'Roboto', sans-serif;
-    color: #1266a7;
-}
-
-.content--fourth{
+.content-info-wrapper{
     display: flex;
 
     flex-direction: column;
@@ -127,7 +75,14 @@ body{
     padding-top: 50px;
 }
 
-#content--fourth_body{
+.content-info-header{
+    font-size: 30px;
+    font-weight: 300;
+    font-family: 'Roboto', sans-serif;
+    color: #1266a7;
+}
+
+.content-info-body{
     padding-left: 30px;
     
     font-family: 'Roboto', sans-serif;
@@ -135,13 +90,6 @@ body{
     font-size: 20px;
     font-weight: 300;
     color: #495057;
-}
-
-#content--fourth_header{
-    font-size: 30px;
-    font-weight: 300;
-    font-family: 'Roboto', sans-serif;
-    color: #1266a7;
 }
 
 .link--os{
@@ -171,7 +119,6 @@ body{
     font-family: 'Roboto', sans-serif;
     color: #1266a7;
     text-decoration: none;
-    /* text-shadow: 2px 2px #07253b; */
     border: 2px solid #1266a7;
 }
 
