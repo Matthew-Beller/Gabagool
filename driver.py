@@ -66,108 +66,108 @@ def prompt_user():
     extract_subtitles.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
 
     return parser.parse_args()
+def main():
+    args = prompt_user()
 
-args = prompt_user()
+    if(args.action == 'Single_Subtitle_File'):
+        source_file_video = args.source_file_video
+        source_file_subtitle = args.source_file_subtitle
 
-if(args.action == 'Single_Subtitle_File'):
-    source_file_video = args.source_file_video
-    source_file_subtitle = args.source_file_subtitle
+        key_phrase = args.key_phrase
 
-    key_phrase = args.key_phrase
+        output_directory = args.output_directory
 
-    output_directory = args.output_directory
+        ignore_spaces = not args.ignore_spaces
+        ignore_punctuation = not args.ignore_punctuation
+        case_sensitive = args.case_sensitive
 
-    ignore_spaces = not args.ignore_spaces
-    ignore_punctuation = not args.ignore_punctuation
-    case_sensitive = args.case_sensitive
+        save_style_num = 4
 
-    save_style_num = 4
+    elif(args.action == 'Batch_Subtitle_Files'):
+        source_directory_video = args.source_directory_video
+        ignore_video = args.ignore_video
 
-elif(args.action == 'Batch_Subtitle_Files'):
-    source_directory_video = args.source_directory_video
-    ignore_video = args.ignore_video
+        source_directory_subtitle = args.source_directory_subtitle
+        ignore_subtitle = args.ignore_subtitle
 
-    source_directory_subtitle = args.source_directory_subtitle
-    ignore_subtitle = args.ignore_subtitle
+        key_phrase = args.key_phrase
 
-    key_phrase = args.key_phrase
+        save_style = args.save_style
 
-    save_style = args.save_style
+        output_directory = args.output_directory
 
-    output_directory = args.output_directory
+        ignore_spaces = not args.ignore_spaces
+        ignore_punctuation = not args.ignore_punctuation
+        case_sensitive = args.case_sensitive
 
-    ignore_spaces = not args.ignore_spaces
-    ignore_punctuation = not args.ignore_punctuation
-    case_sensitive = args.case_sensitive
+        if(save_style == 'One file'):
+            save_style_num = 0
+        elif (save_style == 'File for each folder'):
+            save_style_num = 1
+        elif (save_style == 'File for each video'):
+            save_style_num = 2
+        else:
+            save_style_num = 0
 
-    if(save_style == 'One file'):
-        save_style_num = 0
-    elif (save_style == 'File for each folder'):
-        save_style_num = 1
-    elif (save_style == 'File for each video'):
-        save_style_num = 2
+
+        os.chdir(source_directory_video)
+
+    elif(args.action == 'Single_Video_File'):
+        source_file_subtitle_found = args.source_file_subtitle_found
+        output_directory = args.output_directory
+        buffer_time_start = args.buffer_time_start
+        buffer_time_end = args.buffer_time_end
+
+    elif(args.action == 'Separate_Video_Files'):
+        source_file_subtitle_found = args.source_file_subtitle_found
+        output_directory = args.output_directory
+        buffer_time_start = args.buffer_time_start
+        buffer_time_end = args.buffer_time_end
+
+    elif(args.action == 'Extact_Subtitle_File_From_Video'):
+        source_file_video = args.source_file_video
+        output_directory = args.output_directory
     else:
-        save_style_num = 0
+        pass
 
 
-    os.chdir(source_directory_video)
-
-elif(args.action == 'Single_Video_File'):
-    source_file_subtitle_found = args.source_file_subtitle_found
-    output_directory = args.output_directory
-    buffer_time_start = args.buffer_time_start
-    buffer_time_end = args.buffer_time_end
-
-elif(args.action == 'Separate_Video_Files'):
-    source_file_subtitle_found = args.source_file_subtitle_found
-    output_directory = args.output_directory
-    buffer_time_start = args.buffer_time_start
-    buffer_time_end = args.buffer_time_end
-
-elif(args.action == 'Extact_Subtitle_File_From_Video'):
-    source_file_video = args.source_file_video
-    output_directory = args.output_directory
-else:
-    pass
+    subtitle_not_found_list = []
 
 
-subtitle_not_found_list = []
+    #TODO: turn code into more functions
 
+    if(args.action == 'Single_Subtitle_File'):
+        if(subtitle_functions.check_if_video_file(source_file_video)):
+            os.chdir(output_directory)
+            found_matches_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num)
+            found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase, source_file_video, ignore_spaces, ignore_punctuation, case_sensitive)
 
-#TODO: turn code into more functions
+            for found_entry in found_entries:
+                found_entry.proprietary = source_file_video
+                found_matches_file.write(found_entry.to_srt())
+            found_matches_file.close()
+        else:
+            print("Invalid video file.")
+            
+    elif(args.action == 'Batch_Subtitle_Files'):
+        subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase, ignore_spaces, ignore_punctuation, case_sensitive, ignore_subtitle, ignore_video)
 
-if(args.action == 'Single_Subtitle_File'):
-    if(subtitle_functions.check_if_video_file(source_file_video)):
-        os.chdir(output_directory)
-        found_matches_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num)
-        found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase, source_file_video, ignore_spaces, ignore_punctuation, case_sensitive)
+        if(len(subtitle_not_found_list) == 0):
+            print("All video files matched")
+        else:
+            print("No subtitles found for following video files:")
+            print(subtitle_not_found_list)
+            print("Move subtitle file into subtitle source directory or rename existing subtitle file to match video file name")
 
-        for found_entry in found_entries:
-            found_entry.proprietary = source_file_video
-            found_matches_file.write(found_entry.to_srt())
-        found_matches_file.close()
+    elif(args.action == 'Single_Video_File'):
+        video_editing_functions.mergeMultipleClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
+
+    elif(args.action == 'Separate_Video_Files'):
+        video_editing_functions.saveAsIndividualClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
+    elif(args.action == 'Extact_Subtitle_File_From_Video'):
+        subtitle_functions.extractSubtitles(source_file_video, output_directory)
     else:
-        print("Invalid video file.")
-        
-elif(args.action == 'Batch_Subtitle_Files'):
-    subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase, ignore_spaces, ignore_punctuation, case_sensitive, ignore_subtitle, ignore_video)
-
-    if(len(subtitle_not_found_list) == 0):
-        print("All video files matched")
-    else:
-        print("No subtitles found for following video files:")
-        print(subtitle_not_found_list)
-        print("Move subtitle file into subtitle source directory or rename existing subtitle file to match video file name")
-
-elif(args.action == 'Single_Video_File'):
-    video_editing_functions.mergeMultipleClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
-
-elif(args.action == 'Separate_Video_Files'):
-    video_editing_functions.saveAsIndividualClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
-elif(args.action == 'Extact_Subtitle_File_From_Video'):
-    subtitle_functions.extractSubtitles(source_file_video, output_directory)
-else:
-    pass
+        pass
 
 # Add speeding part of video editing functions
 # Add different save style options for video editing functions
@@ -181,3 +181,6 @@ else:
 # Progress bar on video clipping
 
 # fix saving system, support files with same name and remove file extneions from middle of file names
+
+if __name__ == '__main__':
+    main()
