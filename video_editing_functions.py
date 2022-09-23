@@ -14,7 +14,7 @@ import datetime
 import tempfile
 import time
 
-def saveAsIndividualClips(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end):
+def saveAsIndividualClips(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end, speed_increase):
    video_number = 1
    source_name = os.path.splitext(os.path.basename(subtitle_source))[0]
 
@@ -43,7 +43,7 @@ def saveAsIndividualClips(subtitle_source, output_directory, buffer_seconds_star
       print(f"progress: {video_number}/{total_clips}")
       video_number += 1 
 
-def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end):
+def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, buffer_seconds_end, speed_increase):
 
       start = time.time()
 
