@@ -24,9 +24,39 @@ body{
     right: 0;
     width: 100%;
     background-color: #fbfbfb;
-    padding-top: 30px;
-    padding-bottom: 30px;
-    border-bottom: 3px solid #1266a7;
+    /* padding-top: 25px;
+    padding-bottom: 25px; */
+    border-bottom: 3px solid #da5f4c;
+}
+
+#brand-name-header{
+    font-size: 30px;
+    font-weight: 300;
+    font-family: 'Roboto', sans-serif;
+    color: #da5f4c;
+    text-decoration: none;
+    margin-left: 25px;
+}
+
+#gabagool-logo-header{
+    width: 100px;
+    height: 100px;
+    margin-left: 25px;
+}
+
+#gabagool-logo-main{
+    width: 200px;
+    height: 200px;
+}
+
+#brand-name-main{
+    font-size: 80px;
+    font-weight: 200;
+    font-family: 'Roboto', sans-serif;
+    color: #da5f4c;
+    text-decoration: none;
+    
+    /* margin-top: 50px */
 }
 
 .content_body_line{
@@ -39,13 +69,23 @@ body{
     align-content: center;
     justify-content: center;
     justify-items: center;
+    flex-direction: column;
     top: 0;
     left: 0;
     margin: auto;
     right: 0;
     width: 100%;
     background-color: #ffffff;
-    height: 500px;
+    height: 600px;
+}
+
+#main-display-description-text{
+    font-size: 30px;
+    font-weight:200;
+    font-family: 'Roboto', sans-serif;
+    color: #da5f4c;
+    text-decoration: none;
+    margin-top: 25px;
 }
 
 #content-info-wrapper-1{
@@ -79,7 +119,7 @@ body{
     font-size: 30px;
     font-weight: 300;
     font-family: 'Roboto', sans-serif;
-    color: #1266a7;
+    color: #da5f4c;
 }
 
 .content-info-body{
@@ -93,7 +133,7 @@ body{
 }
 
 .link--os{
-    color: #1266a7;
+    color: #da5f4c;
 }
 
 #button--download{
@@ -110,16 +150,16 @@ body{
     padding-left: 30px;
     padding-right: 30px;
     border-radius: 10px;
-    margin-top: 200px;
+    margin-top: 50px;
 
     background-color: #ffffff;
 
     font-size: 40px;
     font-weight: 300;
     font-family: 'Roboto', sans-serif;
-    color: #1266a7;
+    color: #da5f4c;
     text-decoration: none;
-    border: 2px solid #1266a7;
+    border: 2px solid #da5f4c;
 }
 
 a:link {
@@ -144,7 +184,7 @@ min-height: 100vh;
 }
 
 #content-wrap {
-padding-bottom: 150px;    /* Footer height */
+padding-bottom: 50px;    /* Footer height */
 }
   
 footer {
@@ -152,5 +192,5 @@ position: absolute;
 background-color: #212529;
 bottom: 0;
 width: 100%;
-height: 150px;            /* Footer height */
+height: 50px;            /* Footer height */
 }
