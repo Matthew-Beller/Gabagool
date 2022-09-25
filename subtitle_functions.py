@@ -244,10 +244,13 @@ def check_if_video_file(path):
         print("error")
         return False
 
-
+#TODO: fix issue of freezing when files with same name found. Use (1), (2) notation to fix
+#TODO: Remove file extensions from extracted subtitle names
+#TODO: Add title of subtitle track to names of subtitle files
 def extractSubtitles(source_file_video, output_directory):
     # find location of subtitle steams
     # extract each locaiton saving to numbered file
+    currentStream = 0
     temp_dir = os.getcwd()
     if(source_file_video.lower().endswith(('.mkv', '.mp4'))):
         os.chdir(output_directory)
@@ -259,14 +262,14 @@ def extractSubtitles(source_file_video, output_directory):
         errorStreams = 0
         while(currentStream < numberOfStreams):
             try:
-                process = subprocess.run(['ffmpeg', '-i', '%s' % (str(source_file_video)), '-map', '%s' % ('0:s:' + str(currentStream)), '%s' % ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_' + str(currentStream+1) + '_subs.srt')], check=True)
+                process = subprocess.run(['ffmpeg', '-i', '%s' % (str(source_file_video)), '-map', '%s' % ('0:s:' + str(currentStream)), '%s' % ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs_' + str(currentStream+1) + '.srt')], check=True)
             except:
-                os.remove(os.path.join(output_directory, (os.path.basename(source_file_video) + '_' + str(currentStream) + '_subs.srt')))
+                os.remove(os.path.join(output_directory, ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs_' + str(currentStream+1) + '.srt')))
                 errorStreams += 1
             currentStream += 1
         print(str(numberOfStreams) + " subtitle tracks found")
         if(errorStreams > 0):
-            print(str(errorStreams) + " subtitle tracks could not be processed \nThese subtitles may be bitmap based or damaged making them unextractable.")
+            print(str(errorStreams) + " subtitle tracks could not be processed \nThese subtitles may be bitmap based or damaged making them unextractable.\n Gabagool only supports .srt files")
         os.chdir(temp_dir)
     else:
         print("File must be type must be .mkv or .mp4")
