@@ -245,31 +245,42 @@ def check_if_video_file(path):
         return False
 
 #TODO: fix issue of freezing when files with same name found. Use (1), (2) notation to fix
-#TODO: Remove file extensions from extracted subtitle names
-#TODO: Add title of subtitle track to names of subtitle files
 def extractSubtitles(source_file_video, output_directory):
     # find location of subtitle steams
     # extract each locaiton saving to numbered file
-    currentStream = 0
+    current_stream = 0
     temp_dir = os.getcwd()
+
     if(source_file_video.lower().endswith(('.mkv', '.mp4'))):
         os.chdir(output_directory)
-        currentStream = 0
+
+        process = subprocess.run(['ffprobe', '-loglevel', 'error', '-select_streams', 's', '-show_entries', 'stream=index:stream_tags=title', '-of', 'csv=p=0', '%s' % (str(source_file_video))], capture_output=True)
+        std_out_str = process.stdout.decode("utf-8")
+        subtitle_title_list = std_out_str.split("\n")
+        number_of_streams = len(subtitle_title_list)-1
+        while(current_stream < number_of_streams):
+            subtitle_title_list[current_stream] = subtitle_title_list[current_stream].replace('\r', '').split(',')[1].replace(' ', '_')
+            current_stream += 1
+        current_stream = 0
+
+        
+
         process = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 's', '-show_entries', 'stream=index', '-of', 'csv=p=0', '%s' % (str(source_file_video))], capture_output=True)
         std_out_str = process.stdout.decode("utf-8")
         process_output_list = std_out_str.split("\n")
-        numberOfStreams = len(process_output_list)-1
-        errorStreams = 0
-        while(currentStream < numberOfStreams):
+        number_of_streams = len(process_output_list)-1
+        error_streams = 0
+        
+        while(current_stream < number_of_streams):
             try:
-                process = subprocess.run(['ffmpeg', '-i', '%s' % (str(source_file_video)), '-map', '%s' % ('0:s:' + str(currentStream)), '%s' % ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs_' + str(currentStream+1) + '.srt')], check=True)
+                process = subprocess.run(['ffmpeg', '-i', '%s' % (str(source_file_video)), '-map', '%s' % ('0:s:' + str(current_stream)), '%s' % ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs_' + str(subtitle_title_list[current_stream]) + '.srt')], check=True)
             except:
-                os.remove(os.path.join(output_directory, ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs_' + str(currentStream+1) + '.srt')))
-                errorStreams += 1
-            currentStream += 1
-        print(str(numberOfStreams) + " subtitle tracks found")
-        if(errorStreams > 0):
-            print(str(errorStreams) + " subtitle tracks could not be processed \nThese subtitles may be bitmap based or damaged making them unextractable.\n Gabagool only supports .srt files")
+                os.remove(os.path.join(output_directory, ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs_' + str(subtitle_title_list[current_stream]) + '.srt')))
+                error_streams += 1
+            current_stream += 1
+        print(str(number_of_streams) + " subtitle tracks found")
+        if(error_streams > 0):
+            print(str(error_streams) + " subtitle tracks could not be processed \nThese subtitles may be bitmap based or damaged making them unextractable.\n Gabagool only supports .srt files")
         os.chdir(temp_dir)
     else:
         print("File must be type must be .mkv or .mp4")
