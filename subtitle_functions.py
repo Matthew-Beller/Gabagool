@@ -59,6 +59,8 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
     output_file_directory = output_directory
 
     source_directory_video_file_list = os.scandir(source_directory_video)
+
+    current_video_subdirectory = source_directory_video
     # Creates subdirectories to save output based on video source directory sub directories
     for file in source_directory_video_file_list:
         if(file.is_dir()):
@@ -86,34 +88,34 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                 subtitle_file = find_subtitle_file(source_directory_subtitle, video_file_name, ignore_subtitle, ignore_video)
                 if(subtitle_file != None):
                     os.chdir(output_file_directory)
-                    found_matches_file = find_output_file(video_file_name, save_style_num, source_directory_video, current_video_subdirectory)
+                    found_matches_file = find_output_file(video_file_name, save_style_num, key_phrase, source_directory_video, current_video_subdirectory)
 
 
-                    found_entries = find_matching_entries(subtitle_file, clean_string(key_phrase, ignore_spaces, ignore_punctutation, case_sensitive), os.path.abspath(video_file_name))
+                    found_entries = find_matching_entries(subtitle_file, clean_string(key_phrase, ignore_spaces, ignore_punctutation, case_sensitive), os.path.abspath(video_file_name), ignore_spaces, ignore_punctutation, case_sensitive)
                     for found_entry in found_entries:
                         found_entry.proprietary = video_file_path
                         found_matches_file.write(found_entry.to_srt())
                     found_matches_file.close()
                 else:
                     return video_file_name
-        else:
-            if(check_if_video_file(os.path.join(source_directory_video, file))):
-                subtitle_file = find_subtitle_file(source_directory_subtitle, file.name, ignore_subtitle, ignore_video)
-                if(subtitle_file != None):
-                    os.chdir(output_file_directory)
-                    found_matches_file = find_output_file(video_file_name, save_style_num, source_directory_video, current_video_subdirectory)
+            else:
+                if(check_if_video_file(os.path.join(source_directory_video, file))):
+                    subtitle_file = find_subtitle_file(source_directory_subtitle, file.name, ignore_subtitle, ignore_video)
+                    if(subtitle_file != None):
+                        os.chdir(output_file_directory)
+                        found_matches_file = find_output_file(video_file_name, save_style_num, key_phrase, source_directory_video, current_video_subdirectory)
 
 
-                    found_entries = find_matching_entries(subtitle_file, clean_string(key_phrase, ignore_spaces, ignore_punctutation, case_sensitive), os.path.abspath(video_file_name), ignore_spaces, ignore_punctutation)
+                        found_entries = find_matching_entries(subtitle_file, clean_string(key_phrase, ignore_spaces, ignore_punctutation, case_sensitive), os.path.abspath(video_file_name), ignore_spaces, ignore_punctutation, case_sensitive)
 
-                    for found_entry in found_entries:
-                        # In srt library, proprietary information is stored after time stamp
-                        # To store directory of source video file, path is written in place of the proprietary information
-                        found_entry.proprietary = os.path.abspath(video_file_name)
-                        found_matches_file.write(found_entry.to_srt())
-                    found_matches_file.close()
-                else:
-                    return video_file_name
+                        for found_entry in found_entries:
+                            # In srt library, proprietary information is stored after time stamp
+                            # To store directory of source video file, path is written in place of the proprietary information
+                            found_entry.proprietary = os.path.abspath(video_file_name)
+                            found_matches_file.write(found_entry.to_srt())
+                        found_matches_file.close()
+                    else:
+                        return video_file_name
 
     return None
 
@@ -143,14 +145,12 @@ def find_matching_entries(subtitle_file, key_phrase, entry_label, ignore_spaces,
 
     for entry in subtitles_list:
         entry_clean = clean_string(entry.content, ignore_spaces, ignore_punctuation, case_sensitive)
-
-
         if(entry_clean.find(key_phrase_clean) != -1):
             found_matches_list.append(entry)
 
     return found_matches_list
 
-def find_output_file(file_name, save_style_num, source_directory = None, sub_directory = None):
+def find_output_file(file_name, save_style_num, key_phrase, source_directory = None, sub_directory = None):
     """
     Determines output file name based on file name, save style, source directory and sub directory.\n
     Save style 2 or 4 = One file per video\n
@@ -159,12 +159,20 @@ def find_output_file(file_name, save_style_num, source_directory = None, sub_dir
     Appends existing files same names file is found.\n
     Returns file where output will be written.
     """
+
+    key_phrase_clean = key_phrase.replace(' ', '_')
+
+    punctuation_list = '''!{};:'"\,<>./?@#$%^&*~'''
+    for char in key_phrase_clean:
+        if char in punctuation_list:
+            key_phrase_clean = key_phrase_clean.replace(char, "")
+
     if(save_style_num == 2 or save_style_num == 4 or source_directory == None):
-        found_matches_file_name = os.path.splitext(file_name)[0] + "_found_entries.srt"
+        found_matches_file_name = os.path.splitext(file_name)[0] + "_found_entries_" + str(key_phrase_clean) + ".srt"
     elif(save_style_num == 0):
-        found_matches_file_name = (os.path.splitext(os.path.basename(source_directory))[0]) + "_found_entries.srt"
+        found_matches_file_name = (os.path.splitext(os.path.basename(source_directory))[0]) + "_found_entries_" + str(key_phrase_clean) + ".srt"
     else:
-        found_matches_file_name = (os.path.splitext(os.path.basename(sub_directory))[0]) + "_found_entries.srt"
+        found_matches_file_name = (os.path.splitext(os.path.basename(sub_directory))[0]) + "_found_entries_" + str(key_phrase_clean) + ".srt"
     try:
         found_matches_file = open(found_matches_file_name,"x")
     except:
@@ -200,7 +208,6 @@ def clean_string(string, ignore_spaces, ignore_punctutation, case_sensitive):
         
     if(ignore_punctutation):
         punctuation_list = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
-        clean_string = string
         for char in clean_string:
             if char in punctuation_list:
                 clean_string = clean_string.replace(char, "")

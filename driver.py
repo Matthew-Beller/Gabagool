@@ -31,7 +31,7 @@ def prompt_user():
 
     separate_file_video = subparser.add_parser("Separate_Video_Files")
 
-    extract_subtitles = subparser.add_parser("Extact_Subtitle_File_From_Video")
+    extract_subtitles = subparser.add_parser("Video_Extract_Subtitles")
 
     single_file_subtitle.add_argument('source_file_video', metavar="Video File", widget="FileChooser")
     single_file_subtitle.add_argument('source_file_subtitle', metavar="Subtitle File", widget="FileChooser")
@@ -45,7 +45,7 @@ def prompt_user():
     batch_files_subtitle.add_argument('--ignore_video', metavar="Ignore Phrase Video", help="Ignore a certain phrase in video file names", nargs="?", const="", default="", type=str, required=False)
     batch_files_subtitle.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
     batch_files_subtitle.add_argument('--ignore_subtitle', metavar="Ignore Phrase Subtitle", help="Ignore a certain phrase in subtitle file names", nargs="?", const="", default="", type=str, required=False)
-    batch_files_subtitle.add_argument('key_phrase', metavar="Search Phrase")
+    batch_files_subtitle.add_argument('key_phrase', metavar="Search Phrase", type=str)
     batch_files_subtitle.add_argument("save_style", metavar="Save Style", widget="Dropdown", choices=['One file', 'File for each folder', 'File for each video'])
     batch_files_subtitle.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
     batch_files_subtitle.add_argument('--ignore_spaces', metavar="Ignore Spaces during Search", help=" Ignore", widget="CheckBox", action="store_false", default=True)
@@ -124,7 +124,7 @@ def main():
         buffer_time_start = args.buffer_time_start
         buffer_time_end = args.buffer_time_end
 
-    elif(args.action == 'Extact_Subtitle_File_From_Video'):
+    elif(args.action == 'Video_Extract_Subtitles'):
         source_file_video = args.source_file_video
         output_directory = args.output_directory
     else:
@@ -133,13 +133,10 @@ def main():
 
     subtitle_not_found_list = []
 
-
-    #TODO: turn code into more functions
-
     if(args.action == 'Single_Subtitle_File'):
         if(subtitle_functions.check_if_video_file(source_file_video)):
             os.chdir(output_directory)
-            found_matches_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num)
+            found_matches_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num, key_phrase)
             found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase, source_file_video, ignore_spaces, ignore_punctuation, case_sensitive)
 
             for found_entry in found_entries:
@@ -164,7 +161,7 @@ def main():
 
     elif(args.action == 'Separate_Video_Files'):
         video_editing_functions.saveAsIndividualClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
-    elif(args.action == 'Extact_Subtitle_File_From_Video'):
+    elif(args.action == 'Video_Extract_Subtitles'):
         subtitle_functions.extractSubtitles(source_file_video, output_directory)
     else:
         pass
@@ -180,8 +177,5 @@ def main():
 
 # Progress bar on video clipping
 
-# fix saving system, support files with same name and remove file extneions from middle of file names
-
-#Add keyword to the end of file names to make them distinct when saving mutliple keywords from same source video
 if __name__ == '__main__':
     main()

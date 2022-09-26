@@ -89,10 +89,12 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
                entry_number += 1
 
          
-
+         clip_number = 1
          for entry in subtitles_list:
             clip_list.append(VideoFileClip(entry.proprietary).subclip(str(entry.start), str(entry.end)))
-
+            print("Added Clip" + str(clip_number))
+            print(clip_list)
+            clip_number +=1
             video_counter = video_counter + 1
             if(video_counter == GROUPING_COUNT):
                video_counter = 0
@@ -102,7 +104,7 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
 
                print("\n\n\nconcat" + str(temp_end-temp_start) + "\n\n\n")
                temp_start = time.time()
-               temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
+               temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4", fps=30)
                temp_end = time.time()
                print("\n\n\n\nwrite" + str(temp_end-temp_start) + "\n\n\n")
                video_number += 1
@@ -113,9 +115,10 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
                   clip.close()
                   del clip
                clip_list = []
+
          if(len(clip_list) > 0):
             temp_clip = concatenate_videoclips(clip_list, method="compose")
-            temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
+            temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4", fps=30)
             temp_clip.close()
             del temp_clip
 
@@ -158,7 +161,7 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
                         print("\n\n\n\n\n\ncontcattime" + str(temp_end - temp_start) +"\n\n\n\n\n")
                         os.chdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)))
                         temp_start = time.time()
-                        temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
+                        temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4", fps=30)
                         temp_end = time.time()
                         print("\n\n\n\n\n\nwritetiem:" + str(temp_end - temp_start) + "\n\n\n\n\n\n\n")
                         temp_clip.close()
@@ -175,7 +178,7 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
             os.chdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)))
             if(len(clip_list) > 0):
                temp_clip = concatenate_videoclips(clip_list, method="compose")
-               temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4")
+               temp_clip.write_videofile("TMP_" + source_name + "_" + str(video_number) + ".mp4", fps=30)
                temp_clip.close()
                del temp_clip
             os.chdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number-1)))
@@ -184,7 +187,7 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
                del clip
             del clip_list
             clip_list = []
-      
+
          clip_counter = clip_counter + 1
             
          file_list = os.listdir(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)))
@@ -196,19 +199,27 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
          for clip in clip_list:
             clip.close()
             del clip
+
          del clip_list
          clip_list = []
-
+############################################ fps bug lies in here VVVVVVVVVVVVVVVVVVvv
+## no it doesnt prolbem lies 
          for entity in file_list:
             for file in file_list:
                if(file == ("TMP_" + source_name + "_" + str(clip_counter) + ".mp4")):
+                  print("clip_counter" + str(clip_counter))
                   clip_list.append(VideoFileClip(os.path.join(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)), file)))
                   clip_counter = clip_counter + 1
+
+######################################################33 fps bug lies in here ^^^^^^^^^^^^^^
+
+## funky error, check using different file
+         print('\n\n\n\n\n\n\n\n\nmade it to final clip')
 
          final_clip = concatenate_videoclips(clip_list, method="compose")
 
          os.chdir(output_directory)
-         final_clip.write_videofile("my_concatenation.mp4")
+         final_clip.write_videofile("my_concatenation.mp4", fps=30)
 
          for clip in clip_list:
             clip.close()
@@ -223,3 +234,5 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
 
          print("GROUPING_COUNT: " + str(GROUPING_COUNT))
          print("Total time: " + str(end - start))
+
+         #TODO: Fix bug where merging clips presents video fps error
