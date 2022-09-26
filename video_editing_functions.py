@@ -211,7 +211,7 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
          final_clip = concatenate_videoclips(clip_list, method="compose")
 
          os.chdir(output_directory)
-         final_clip.write_videofile("my_concatenation.mp4", fps=30)
+         final_clip.write_videofile(source_name + "_video.mp4", fps=30)
 
          for clip in clip_list:
             clip.close()
