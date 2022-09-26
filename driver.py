@@ -182,5 +182,6 @@ def main():
 
 # fix saving system, support files with same name and remove file extneions from middle of file names
 
+#Add keyword to the end of file names to make them distinct when saving mutliple keywords from same source video
 if __name__ == '__main__':
     main()

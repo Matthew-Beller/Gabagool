@@ -194,9 +194,7 @@ def clean_input(file_name, ignore_phrase = ""):
 def clean_string(string, ignore_spaces, ignore_punctutation, case_sensitive):
     clean_string = string
 
-    print("ignore_spaces: " + str(ignore_spaces))
-    print("ignore_punctutation: " + str(ignore_punctutation))
-    print("case_sensitive: " + str(case_sensitive))
+
     if(not case_sensitive):
         clean_string = clean_string.lower()
         
