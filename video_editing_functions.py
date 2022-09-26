@@ -92,8 +92,6 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
          clip_number = 1
          for entry in subtitles_list:
             clip_list.append(VideoFileClip(entry.proprietary).subclip(str(entry.start), str(entry.end)))
-            print("Added Clip" + str(clip_number))
-            print(clip_list)
             clip_number +=1
             video_counter = video_counter + 1
             if(video_counter == GROUPING_COUNT):
@@ -202,19 +200,13 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
 
          del clip_list
          clip_list = []
-############################################ fps bug lies in here VVVVVVVVVVVVVVVVVVvv
-## no it doesnt prolbem lies 
+
          for entity in file_list:
             for file in file_list:
                if(file == ("TMP_" + source_name + "_" + str(clip_counter) + ".mp4")):
                   print("clip_counter" + str(clip_counter))
                   clip_list.append(VideoFileClip(os.path.join(os.path.join(os.path.abspath(temp_dir), "TMP_Edit_Round_" + str(round_number)), file)))
                   clip_counter = clip_counter + 1
-
-######################################################33 fps bug lies in here ^^^^^^^^^^^^^^
-
-## funky error, check using different file
-         print('\n\n\n\n\n\n\n\n\nmade it to final clip')
 
          final_clip = concatenate_videoclips(clip_list, method="compose")
 
@@ -234,5 +226,3 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
 
          print("GROUPING_COUNT: " + str(GROUPING_COUNT))
          print("Total time: " + str(end - start))
-
-         #TODO: Fix bug where merging clips presents video fps error
