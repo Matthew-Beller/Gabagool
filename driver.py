@@ -35,7 +35,7 @@ def prompt_user():
 
     single_file_subtitle.add_argument('source_file_video', metavar="Video File", widget="FileChooser")
     single_file_subtitle.add_argument('source_file_subtitle', metavar="Subtitle File", widget="FileChooser")
-    single_file_subtitle.add_argument('key_phrase', metavar="Search Phrase")
+    single_file_subtitle.add_argument('key_phrase_input_raw', metavar="Search Phrases", help="Delimit lists of keywords with |@|")
     single_file_subtitle.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
     single_file_subtitle.add_argument('--ignore_spaces', metavar="Ignore Spaces during Search", help=" Ignore", widget="CheckBox", action="store_false", default=True)
     single_file_subtitle.add_argument('--ignore_punctuation', metavar="Ignore Punctuation during Search", help=" Ignore", widget="CheckBox", action="store_false", default=True)
@@ -45,7 +45,7 @@ def prompt_user():
     batch_files_subtitle.add_argument('--ignore_video', metavar="Ignore Phrase Video", help="Ignore a certain phrase in video file names", default="", type=str, required=False)
     batch_files_subtitle.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
     batch_files_subtitle.add_argument('--ignore_subtitle', metavar="Ignore Phrase Subtitle", help="Ignore a certain phrase in subtitle file names", default="", type=str, required=False)
-    batch_files_subtitle.add_argument('key_phrase', metavar="Search Phrase", type=str)
+    batch_files_subtitle.add_argument('key_phrase_input_raw', metavar="Search Phrases", help="Delimit lists of keywords with |@|", type=str)
     batch_files_subtitle.add_argument("save_style", metavar="Save Style", widget="Dropdown", choices=['One file', 'File for each folder', 'File for each video'])
     batch_files_subtitle.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
     batch_files_subtitle.add_argument('--ignore_spaces', metavar="Ignore Spaces during Search", help=" Ignore", widget="CheckBox", action="store_false", default=True)
@@ -73,8 +73,9 @@ def main():
         source_file_video = args.source_file_video
         source_file_subtitle = args.source_file_subtitle
 
-        key_phrase = args.key_phrase
+        key_phrase_input_raw = args.key_phrase_input_raw
 
+        key_phrase_list = key_phrase_input_raw.split('|@|')
         output_directory = args.output_directory
 
         ignore_spaces = not args.ignore_spaces
@@ -90,7 +91,8 @@ def main():
         source_directory_subtitle = args.source_directory_subtitle
         ignore_subtitle = args.ignore_subtitle
 
-        key_phrase = args.key_phrase
+        key_phrase_input_raw = args.key_phrase_input_raw
+        key_phrase_list = key_phrase_input_raw.split('|@|')
 
         save_style = args.save_style
         save_style = 'One file'
@@ -136,8 +138,8 @@ def main():
     if(args.action == 'Single_Subtitle_File'):
         if(subtitle_functions.check_if_video_file(source_file_video)):
             os.chdir(output_directory)
-            found_matches_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num, key_phrase)
-            found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase, source_file_video, ignore_spaces, ignore_punctuation, case_sensitive)
+            found_matches_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num, key_phrase_list)
+            found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase_list, source_file_video, ignore_spaces, ignore_punctuation, case_sensitive)
 
             for found_entry in found_entries:
                 found_entry.proprietary = source_file_video
@@ -147,7 +149,7 @@ def main():
             print("Invalid video file.")
             
     elif(args.action == 'Batch_Subtitle_Files'):
-        subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase, ignore_spaces, ignore_punctuation, case_sensitive, ignore_subtitle, ignore_video)
+        subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_list, ignore_spaces, ignore_punctuation, case_sensitive, ignore_subtitle, ignore_video)
 
         if(len(subtitle_not_found_list) == 0):
             print("All video files matched")
