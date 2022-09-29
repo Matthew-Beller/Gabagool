@@ -42,9 +42,9 @@ def prompt_user():
     single_file_subtitle.add_argument('--case_sensitive', metavar="Case Sensitive Search", help=" Recognize Case", widget="CheckBox", action="store_true", default=False)
 
     batch_files_subtitle.add_argument('source_directory_video', metavar="Video Files Directory", widget="DirChooser")
-    batch_files_subtitle.add_argument('--ignore_video', metavar="Ignore Phrase Video", help="Ignore a certain phrase in video file names", nargs="?", const="", default="", type=str, required=False)
+    batch_files_subtitle.add_argument('--ignore_video', metavar="Ignore Phrase Video", help="Ignore a certain phrase in video file names", default="", type=str, required=False)
     batch_files_subtitle.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
-    batch_files_subtitle.add_argument('--ignore_subtitle', metavar="Ignore Phrase Subtitle", help="Ignore a certain phrase in subtitle file names", nargs="?", const="", default="", type=str, required=False)
+    batch_files_subtitle.add_argument('--ignore_subtitle', metavar="Ignore Phrase Subtitle", help="Ignore a certain phrase in subtitle file names", default="", type=str, required=False)
     batch_files_subtitle.add_argument('key_phrase', metavar="Search Phrase", type=str)
     batch_files_subtitle.add_argument("save_style", metavar="Save Style", widget="Dropdown", choices=['One file', 'File for each folder', 'File for each video'])
     batch_files_subtitle.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
@@ -93,7 +93,7 @@ def main():
         key_phrase = args.key_phrase
 
         save_style = args.save_style
-
+        save_style = 'One file'
         output_directory = args.output_directory
 
         ignore_spaces = not args.ignore_spaces
@@ -166,16 +166,7 @@ def main():
     else:
         pass
 
-# Add speeding part of video editing functions
-    # Needs to work around buffer clips
-    # only start speeding at moment of original subtitle
-    # also needs to work in case of mulitple clips merging due to overlapping times
-    # also should add support for "X movie but every time they say Y it gets Z times faster"
-# Allow for multople search terms in subtitle search
-
-# Warn that results are not 100% accuarate, best results may require manually checking searched file
-
-# Progress bar on video clipping
+# Allow for multiple search terms in subtitle search
 
 if __name__ == '__main__':
     main()

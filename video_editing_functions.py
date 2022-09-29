@@ -224,5 +224,4 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
 
          end = time.time()
 
-         print("GROUPING_COUNT: " + str(GROUPING_COUNT))
          print("Total time: " + str(end - start))

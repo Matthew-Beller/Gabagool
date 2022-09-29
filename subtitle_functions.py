@@ -42,6 +42,7 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase
                 subtitle_file_name_clean = clean_input(entry.name, ignore_phrase_subtitle)
                 if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() >= comparison_tolerance):
                     return os.path.join(os.getcwd(), entry.name)
+
     return None
 
 def find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase, ignore_spaces, ignore_punctutation, case_sensitive, ignore_subtitle = "", ignore_video = ""):
@@ -178,7 +179,7 @@ def find_output_file(file_name, save_style_num, key_phrase, source_directory = N
     except:
         if(save_style_num == 2):
             print(found_matches_file_name + "already exists.")
-    found_matches_file = open(found_matches_file_name,"a")
+    found_matches_file = open(found_matches_file_name,"a", encoding="utf-8")
 
     return found_matches_file
 
@@ -306,4 +307,4 @@ def extractSubtitles(source_file_video, output_directory):
             print(str(error_streams) + " subtitle track(s) could not be processed \nThese subtitles may be bitmap based or improperly formatted making them unextractable.\nGabagool only supports .srt files")
         os.chdir(temp_dir)
     else:
-        print("File must be type must be .mkv or .mp4")
+        print("File must be type must be .mkv or .mp4")  
