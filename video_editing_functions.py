@@ -21,8 +21,16 @@ def saveAsIndividualClips(subtitle_source, output_directory, buffer_seconds_star
    source_name = os.path.splitext(os.path.basename(subtitle_source))[0]
 
    os.chdir(output_directory)
-   os.mkdir(os.path.join(output_directory, source_name + "_videos"))
-   os.chdir(os.path.join(output_directory, source_name + "_videos"))
+
+   output_path_string = str(os.path.join(output_directory, source_name + "_videos"))
+
+   duplicate_count = 0
+   while(os.path.isdir(output_path_string)):
+         duplicate_count +=1 
+         output_path_string = str(os.path.join(output_directory, source_name + "_videos(" + str(duplicate_count) + ")"))
+
+   os.mkdir(output_path_string)
+   os.chdir(output_path_string)
 
    with open(subtitle_source, encoding='utf-8') as file:
       subtitle_generator = srt.parse(file)
@@ -102,6 +110,11 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
 
       input_path_string = str(os.path.join(str(os.path.abspath(temp_dir)), 'temp_video_list_file.txt'))
       output_path_string = str(os.path.join(str(os.path.abspath(output_directory)), source_name) + ".mp4")
+      
+      duplicate_count = 0
+      while(os.path.isfile(output_path_string)):
+         duplicate_count +=1 
+         output_path_string = str(os.path.join(str(os.path.abspath(output_directory)), source_name + "(" + str(duplicate_count) + ")") + ".mp4")
 
       try:
          process = subprocess.run(['ffmpeg', '-f', 'concat', '-safe', '0', '-i', '%s' % (input_path_string), '-c', 'copy', '%s' % (output_path_string)])
