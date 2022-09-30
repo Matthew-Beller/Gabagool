@@ -62,6 +62,31 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
     source_directory_video_file_list = os.scandir(source_directory_video)
 
     current_video_subdirectory = source_directory_video
+    source_name = os.path.splitext(os.path.basename(source_directory_subtitle))[0]
+    key_phrase_clean = ""
+    
+    for phrase in key_phrase_list:
+        key_phrase_clean = key_phrase_clean + "_" + str(phrase)
+
+    key_phrase_clean = key_phrase_clean.replace(' ', '_')
+
+    punctuation_list = '''!{};:'"\,<>./?@#$%^&*~'''
+    for char in key_phrase_clean:
+        if char in punctuation_list:
+            key_phrase_clean = key_phrase_clean.replace(char, "")
+
+    if(save_style_num != 0):
+        output_path_string = str(os.path.join(output_directory, source_name + "_found_entries" + str(key_phrase_clean)))
+        duplicate_count = 0
+        while(os.path.isdir(output_path_string)):
+                duplicate_count +=1 
+                output_path_string = str(os.path.join(output_directory, source_name + "_found_entries" + str(key_phrase_clean) + "(" + str(duplicate_count) + ")"))
+
+        os.mkdir(output_path_string)
+        os.chdir(output_path_string)
+
+        output_file_directory = output_path_string
+
     # Creates subdirectories to save output based on video source directory sub directories
     for file in source_directory_video_file_list:
         if(file.is_dir()):
@@ -72,9 +97,9 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                 directory_copy_count = 0
                 while(not directory_created):
                     if(directory_copy_count == 0):
-                        output_file_directory = os.path.join(output_directory, file.name)
+                        output_file_directory = os.path.join(output_path_string, file.name)
                     else:
-                        output_file_directory = os.path.join(output_directory, file.name + "(" + str(directory_copy_count) + ")")
+                        output_file_directory = os.path.join(output_path_string, file.name + "(" + str(directory_copy_count) + ")")
                     try:
                         os.mkdir(output_file_directory)   
                         directory_created = True      
@@ -90,7 +115,6 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                 if(subtitle_file != None):
                     os.chdir(output_file_directory)
                     found_matches_file = find_output_file(video_file_name, save_style_num, key_phrase_list, source_directory_video, current_video_subdirectory)
-
 
                     found_entries = find_matching_entries(subtitle_file, key_phrase_list, os.path.abspath(video_file_name), ignore_spaces, ignore_punctutation, case_sensitive)
                     for found_entry in found_entries:
@@ -169,7 +193,6 @@ def find_output_file(file_name, save_style_num, key_phrase_list, source_director
     Appends existing files same names file is found.\n
     Returns file where output will be written.
     """
-
     key_phrase_clean = ""
     
     for phrase in key_phrase_list:
