@@ -141,7 +141,6 @@ def find_matching_entries(subtitle_file, key_phrase_list, entry_label, ignore_sp
 
         original_encoding = chardet.detect(contents)
 
-        print(original_encoding)
         if(original_encoding["encoding"] != "utf-8"):
             check_file = contents.decode(original_encoding["encoding"]).encode("utf-8")
         else:
