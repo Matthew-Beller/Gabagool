@@ -1,6 +1,6 @@
 import os
 from difflib import SequenceMatcher
-from numpy import number
+from numpy import extract, number
 import srt
 import subprocess
 import chardet
@@ -122,7 +122,7 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                         found_matches_file.write(found_entry.to_srt())
                     found_matches_file.close()
                 else:
-                    return video_file_name
+                    print("Cannot find subtitle file for " + str(video_file_name))
             else:
                 if(check_if_video_file(os.path.join(source_directory_video, file))):
                     subtitle_file = find_subtitle_file(source_directory_subtitle, file.name, ignore_subtitle, ignore_video)
@@ -140,7 +140,7 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
                             found_matches_file.write(found_entry.to_srt())
                         found_matches_file.close()
                     else:
-                        return video_file_name
+                        print("Cannot find subtitle file for " + str(video_file_name))
 
     return None
 
@@ -293,12 +293,16 @@ def extractSubtitles(source_file_video, output_directory):
 
     if(source_file_video.lower().endswith(('.mkv', '.mp4'))):
         os.chdir(output_directory)
-        output_folder = os.path.join(os.getcwd(), (os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs')
-        try:
-            os.mkdir(output_folder)
-        except:
-            pass
-        os.chdir(output_folder)
+        output_path_string = os.path.join(os.getcwd(), (os.path.splitext(os.path.basename(source_file_video))[0]) + '_subtitles')
+        os.chdir(output_directory)
+
+        duplicate_count = 0
+        while(os.path.isdir(output_path_string)):
+                duplicate_count +=1 
+                output_path_string = str(os.path.join(output_directory, os.path.splitext(os.path.basename(source_file_video))[0]) + "_subtitles(" + str(duplicate_count) + ")")
+
+        os.mkdir(output_path_string)
+        os.chdir(output_path_string)
 
         process = subprocess.run(['ffprobe', '-loglevel', 'error', '-select_streams', 's', '-show_entries', 'stream=index:stream_tags=title', '-of', 'csv=p=0', '%s' % (str(source_file_video))], capture_output=True)
         std_out_str = process.stdout.decode("utf-8")
@@ -336,7 +340,7 @@ def extractSubtitles(source_file_video, output_directory):
             try:
                 process = subprocess.run(['ffmpeg', '-loglevel', 'error', '-i', '%s' % (str(source_file_video)), '-map', '%s' % ('0:s:' + str(current_stream)), '%s' % ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs_' + str(subtitle_title_list[current_stream]) + "_" + str(subtitle_language_list[current_stream]) + '.srt')], check=True)
             except:
-                os.remove(os.path.join(output_folder, ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs_' + str(subtitle_title_list[current_stream]) + "_" + str(subtitle_language_list[current_stream]) + '.srt')))
+                os.remove(os.path.join(output_path_string, ((os.path.splitext(os.path.basename(source_file_video))[0]) + '_subs_' + str(subtitle_title_list[current_stream]) + "_" + str(subtitle_language_list[current_stream]) + '.srt')))
                 error_streams += 1
             current_stream += 1
         print(str(number_of_streams) + " subtitle track(s) found")
@@ -345,3 +349,41 @@ def extractSubtitles(source_file_video, output_directory):
         os.chdir(temp_dir)
     else:
         print("File must be type must be .mkv or .mp4")  
+
+def batch_extract_subtitles(source_directory_video, output_directory):
+    source_directory_video_file_list = os.scandir(source_directory_video)
+    current_source_subdirectory_video = source_directory_video
+    output_path_string = output_directory
+    source_name = os.path.splitext(os.path.basename(source_directory_video))[0]
+
+    os.chdir(output_directory)
+    output_path_string = str(os.path.join(output_directory, source_name + "_subtitles"))
+
+    duplicate_count = 0
+    while(os.path.isdir(output_path_string)):
+            duplicate_count +=1 
+            output_path_string = str(os.path.join(output_directory, source_name + "_subtitles(" + str(duplicate_count) + ")"))
+    os.mkdir(output_path_string)
+
+    for file in source_directory_video_file_list:
+        if(file.is_dir()):
+            current_source_subdirectory_video = file
+            source_name = os.path.splitext(os.path.basename(file))[0]
+
+            os.chdir(output_path_string)
+            new_output_path_string = str(os.path.join(output_path_string, source_name + "_subtitles"))
+
+            duplicate_count = 0
+            while(os.path.isdir(new_output_path_string)):
+                    duplicate_count +=1 
+                    new_output_path_string = str(os.path.join(output_path_string, source_name + "_subtitles(" + str(duplicate_count) + ")"))
+            os.mkdir(new_output_path_string)
+
+            current_source_subdirectory_video_file_list = os.scandir(current_source_subdirectory_video)
+            for file in current_source_subdirectory_video_file_list:
+                if(not file.is_dir()):
+                    print(str(os.path.abspath(file)))
+                    print("here")
+                    extractSubtitles(str(os.path.abspath(file)), new_output_path_string)
+        else:
+            extractSubtitles(file, output_path_string)
