@@ -29,7 +29,7 @@ def prompt_user():
 
     create_video_file = subparser.add_parser("Create_Video_File")
 
-    extract_subtitles = subparser.add_parser("Video_Extract_Subtitles")
+    extract_video_subtitles = subparser.add_parser("Extract_Video_Subtitles")
 
     single_file_subtitle.add_argument('source_file_video', metavar="Video File", widget="FileChooser")
     single_file_subtitle.add_argument('source_file_subtitle', metavar="Subtitle File", widget="FileChooser")
@@ -56,8 +56,8 @@ def prompt_user():
     create_video_file.add_argument('--buffer_time_end', metavar="End Buffer", nargs="?", const="", default=0, type=int, required=False)
     create_video_file.add_argument('save_style', metavar="Save Style", widget="Dropdown", choices=['One Compilation Video', 'Separate Video Files'])
 
-    extract_subtitles.add_argument('source_file_video', metavar="Video File", widget="FileChooser")
-    extract_subtitles.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
+    extract_video_subtitles.add_argument('source_file_video', metavar="Video File", widget="FileChooser")
+    extract_video_subtitles.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
 
     return parser.parse_args()
 def main():
@@ -114,7 +114,7 @@ def main():
         buffer_time_end = args.buffer_time_end
         save_style = args.save_style
 
-    elif(args.action == 'Video_Extract_Subtitles'):
+    elif(args.action == 'Extract_Video_Subtitles'):
         source_file_video = args.source_file_video
         output_directory = args.output_directory
     else:
@@ -151,12 +151,16 @@ def main():
             video_editing_functions.mergeMultipleClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
         else:
             video_editing_functions.saveAsIndividualClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
-    elif(args.action == 'Video_Extract_Subtitles'):
+    elif(args.action == 'Extract_Video_Subtitles'):
         subtitle_functions.extractSubtitles(source_file_video, output_directory)
     else:
         pass
 
-# Allow for multiple search terms in subtitle search
+# allow for multiple ignore phrases
+
+# allow for batch subtitle extraction
+    # folder for each file
+    # support nested folders of files
 
 if __name__ == '__main__':
     main()
