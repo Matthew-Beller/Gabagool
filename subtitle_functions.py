@@ -12,7 +12,6 @@ class FoundSubtitleMatch:
         self.end = end
         self.content = content
 
-
 def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase_subtitle = "", ignore_phrase_video = "", comparison_tolerance = 0.70):
     """
     Matches subtitle file to video file based on file names.\n
@@ -23,25 +22,13 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase
     """
     video_file_name_clean = clean_input(video_file_name, ignore_phrase_video)
 
-    source_directory_subtitle_file_list = os.scandir(source_directory_subtitle)
-
-    directory_found = False
-
-    for entry in source_directory_subtitle_file_list:
-        if(entry.is_dir()):
-            directory_found = True
-            os.chdir(os.path.join(source_directory_subtitle, entry.name))
-            for subtitle_file_name in os.listdir(os.getcwd()):
-                if(subtitle_file_name.endswith(".srt")):
-                    subtitle_file_name_clean = clean_input(subtitle_file_name, ignore_phrase_subtitle)
-                    if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() >= comparison_tolerance):
-                        return os.path.join(os.getcwd(), subtitle_file_name)
-        else:
-            os.chdir(source_directory_subtitle)
-            if(entry.name.endswith(".srt")):
-                subtitle_file_name_clean = clean_input(entry.name, ignore_phrase_subtitle)
+    for root, dirs, files in os.walk(source_directory_subtitle):
+        for file in files:
+            if(str(file).endswith(".srt")):
+                subtitle_file_name_clean = clean_input(file, ignore_phrase_subtitle)
                 if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() >= comparison_tolerance):
-                    return os.path.join(os.getcwd(), entry.name)
+                    print(str(os.path.join(root,file)))
+                    return os.path.join(root, file)
 
     return None
 
@@ -237,9 +224,13 @@ def clean_input(file_name, ignore_phrase = ""):
 
     return file_name_clean
 
-def clean_string(string, ignore_spaces, ignore_punctutation, case_sensitive):
-    clean_string = string
 
+def clean_string(string, ignore_spaces, ignore_punctutation, case_sensitive):
+    """
+    Removes spaces and punctutation and changes case of string based on inputs
+    Returns string with desired parts removed
+    """
+    clean_string = string
 
     if(not case_sensitive):
         clean_string = clean_string.lower()
