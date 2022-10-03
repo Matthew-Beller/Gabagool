@@ -27,7 +27,6 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase
             if(str(file).endswith(".srt")):
                 subtitle_file_name_clean = clean_input(file, ignore_phrase_subtitle)
                 if(SequenceMatcher(None, subtitle_file_name_clean, video_file_name_clean).ratio() >= comparison_tolerance):
-                    print(str(os.path.join(root,file)))
                     return os.path.join(root, file)
 
     return None
@@ -42,7 +41,6 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
     Appends existing files same names file is found.\n
     ignore_subtitle and ignore_video arguments ignore certain phrases with subtitle and video file names when pairing these files together\n
     """
-
 
     output_file_directory = output_directory
 
@@ -62,73 +60,28 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
         if char in punctuation_list:
             key_phrase_clean = key_phrase_clean.replace(char, "")
 
+    os.chdir(output_directory)
     if(save_style_num != 0):
-        output_path_string = str(os.path.join(output_directory, source_name + "_found_entries" + str(key_phrase_clean)))
-        duplicate_count = 0
-        while(os.path.isdir(output_path_string)):
-                duplicate_count +=1 
-                output_path_string = str(os.path.join(output_directory, source_name + "_found_entries" + str(key_phrase_clean) + "(" + str(duplicate_count) + ")"))
-
-        os.mkdir(output_path_string)
-        os.chdir(output_path_string)
-
-        output_file_directory = output_path_string
-
-    # Creates subdirectories to save output based on video source directory sub directories
-    for file in source_directory_video_file_list:
-        if(file.is_dir()):
-            current_video_subdirectory = os.path.join(source_directory_video, file)
-
-            if(save_style_num == 2):
-                directory_created = False
-                directory_copy_count = 0
-                while(not directory_created):
-                    if(directory_copy_count == 0):
-                        output_file_directory = os.path.join(output_path_string, file.name)
-                    else:
-                        output_file_directory = os.path.join(output_path_string, file.name + "(" + str(directory_copy_count) + ")")
-                    try:
-                        os.mkdir(output_file_directory)   
-                        directory_created = True      
-                    except:
-                        directory_copy_count += 1
-
-        os.chdir(output_file_directory)
-
-        for video_file_name in os.listdir(current_video_subdirectory):
-            video_file_path = os.path.join(current_video_subdirectory, video_file_name)
-            if(os.path.isfile(video_file_path) and check_if_video_file(video_file_path)):
-                subtitle_file = find_subtitle_file(source_directory_subtitle, video_file_name, ignore_subtitle, ignore_video)
+        output_root = create_directory_tree_without_files(source_directory_video, output_directory, source_name + "_found_entries" + str(key_phrase_clean))
+    for root, dirs, files in os.walk(source_directory_video):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if(os.path.isfile(file_path) and check_if_video_file(file_path)):
+                subtitle_file = find_subtitle_file(source_directory_subtitle, file, ignore_subtitle, ignore_video)
                 if(subtitle_file != None):
-                    os.chdir(output_file_directory)
-                    found_matches_file = find_output_file(video_file_name, save_style_num, key_phrase_list, source_directory_video, current_video_subdirectory)
-
-                    found_entries = find_matching_entries(subtitle_file, key_phrase_list, os.path.abspath(video_file_name), ignore_spaces, ignore_punctutation, case_sensitive)
+                    if(save_style_num != 0):
+                        os.chdir(os.path.join(output_root, os.path.relpath(root, source_directory_video)))
+                    found_matches_file = find_output_file(file, save_style_num, key_phrase_list, source_directory_video, os.path.split(root)[1])
+                    found_entries = find_matching_entries(subtitle_file, key_phrase_list, file_path, ignore_spaces, ignore_punctutation, case_sensitive)
                     for found_entry in found_entries:
-                        found_entry.proprietary = video_file_path
+                        print("here")
+                        # In srt library, proprietary information is stored after time stamp
+                        # To store directory of source video file, path is written in place of the proprietary information
+                        found_entry.proprietary = file_path
                         found_matches_file.write(found_entry.to_srt())
                     found_matches_file.close()
                 else:
-                    print("Cannot find subtitle file for " + str(video_file_name))
-            else:
-                if(check_if_video_file(os.path.join(source_directory_video, file))):
-                    subtitle_file = find_subtitle_file(source_directory_subtitle, file.name, ignore_subtitle, ignore_video)
-                    if(subtitle_file != None):
-                        os.chdir(output_file_directory)
-                        found_matches_file = find_output_file(video_file_name, save_style_num, key_phrase_list, source_directory_video, current_video_subdirectory)
-
-
-                        found_entries = find_matching_entries(subtitle_file, key_phrase_list, os.path.abspath(video_file_name), ignore_spaces, ignore_punctutation, case_sensitive)
-
-                        for found_entry in found_entries:
-                            # In srt library, proprietary information is stored after time stamp
-                            # To store directory of source video file, path is written in place of the proprietary information
-                            found_entry.proprietary = os.path.abspath(video_file_name)
-                            found_matches_file.write(found_entry.to_srt())
-                        found_matches_file.close()
-                    else:
-                        print("Cannot find subtitle file for " + str(video_file_name))
-
+                    print("Cannot find subtitle file for " + file)
     return None
 
 def find_matching_entries(subtitle_file, key_phrase_list, entry_label, ignore_spaces, ignore_punctuation, case_sensitive):
@@ -157,7 +110,7 @@ def find_matching_entries(subtitle_file, key_phrase_list, entry_label, ignore_sp
         else:
             check_file = contents
         subtitle_generator = srt.parse(check_file.decode("utf-8"))
-        
+
         subtitles_list = list(subtitle_generator)
 
     for entry in subtitles_list:
@@ -277,3 +230,22 @@ def check_if_video_file(path):
     except:
         print("error")
         return False
+
+def create_directory_tree_without_files(source_directory, destination, name):     
+    duplicate_count = 0
+    output_directory = os.path.join(destination, name)
+
+    while(os.path.isdir(output_directory)):
+         duplicate_count +=1 
+         output_directory = str(os.path.join(destination, name + "(" + str(duplicate_count) + ")"))
+    os.mkdir(output_directory)
+
+    for root, dirs, files in os.walk(source_directory):
+        new_subdir = os.path.join(output_directory, os.path.relpath(root, source_directory))
+        if not os.path.isdir(new_subdir):
+            try:
+                os.mkdir(new_subdir)
+            except:
+                print(str(new_subdir) + " already exists")
+                
+    return output_directory
