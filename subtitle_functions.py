@@ -41,12 +41,6 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
     Appends existing files same names file is found.\n
     ignore_subtitle and ignore_video arguments ignore certain phrases with subtitle and video file names when pairing these files together\n
     """
-
-    output_file_directory = output_directory
-
-    source_directory_video_file_list = os.scandir(source_directory_video)
-
-    current_video_subdirectory = source_directory_video
     source_name = os.path.splitext(os.path.basename(source_directory_subtitle))[0]
     key_phrase_clean = ""
     
