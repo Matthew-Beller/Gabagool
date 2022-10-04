@@ -9,7 +9,7 @@ body{
     justify-content: flex-start;
     flex-direction: column;
     background-color: #ffffff;
-    padding-top: 60px;
+    padding-top: 5em;
 }
 
 .top-menu {
@@ -24,43 +24,40 @@ body{
     right: 0;
     width: 100%;
     background-color: #fbfbfb;
-    /* padding-top: 25px;
-    padding-bottom: 25px; */
     border-bottom: 3px solid #da5f4c;
+    height: 5em;
 }
 
 #brand-name-header{
-    font-size: 30px;
+    font-size: 4em;
     font-weight: 300;
     font-family: 'Roboto', sans-serif;
     color: #da5f4c;
     text-decoration: none;
-    margin-left: 25px;
+    margin-left: 1em;
 }
 
 #gabagool-logo-header{
-    width: 100px;
-    height: 100px;
-    margin-left: 25px;
+    width: 6em;
+    height: 6em;
+    margin-left: 1em;
 }
 
 #gabagool-logo-main{
-    width: 200px;
-    height: 200px;
+    width: 12em;
+    height: 12em;
 }
 
 #brand-name-main{
-    font-size: 80px;
+    font-size: 5em;
     font-weight: 200;
     font-family: 'Roboto', sans-serif;
     color: #da5f4c;
     text-decoration: none;
-    
-    /* margin-top: 50px */
 }
 
 .content_body_line{
-    margin-top: 10px;
+    margin-top: 1em;
 }
 
 .main-display{
@@ -76,16 +73,18 @@ body{
     right: 0;
     width: 100%;
     background-color: #ffffff;
-    height: 600px;
+    height: 32.5em;
+    padding-bottom: 1em;
 }
 
 #main-display-description-text{
-    font-size: 30px;
+    font-size: 2em;
     font-weight:200;
     font-family: 'Roboto', sans-serif;
     color: #da5f4c;
     text-decoration: none;
-    margin-top: 25px;
+    text-align: center;
+    margin-top: 1em;
 }
 
 #content-info-wrapper-1{
@@ -109,25 +108,25 @@ body{
     right: 0;
     width: 100%;
     background-color: #f8f9fa;
-    height: 300px;
-    padding-left: 250px;
-    padding-right: 250px;
-    padding-top: 50px;
+    height: 150%;
+    padding-left: 10%;
+    padding-right: 10%;
+    padding-top: 2.5em;
+    padding-bottom: 2.5em;
 }
 
 .content-info-header{
-    font-size: 30px;
+    font-size: 1.5em;
     font-weight: 300;
     font-family: 'Roboto', sans-serif;
     color: #da5f4c;
 }
 
 .content-info-body{
-    padding-left: 30px;
+    padding-left: 2.5%;
     
     font-family: 'Roboto', sans-serif;
-    font-size: 15px;
-    font-size: 20px;
+    font-size: 1.25em;
     font-weight: 300;
     color: #495057;
 }
@@ -145,16 +144,16 @@ body{
     right: 0;
     width: 100%;
 
-    padding-top: 15px;
-    padding-bottom: 15px;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
     border-radius: 10px;
-    margin-top: 50px;
+    margin-top: 1em;
 
     background-color: #ffffff;
 
-    font-size: 40px;
+    font-size: 2.5em;
     font-weight: 300;
     font-family: 'Roboto', sans-serif;
     color: #da5f4c;
@@ -163,34 +162,50 @@ body{
 }
 
 a:link {
-text-decoration: none;
+    text-decoration: none;
 }
 
 a:visited {
-text-decoration: none;
+    text-decoration: none;
 }
 
 a:hover {
-text-decoration: none;
+    text-decoration: none;
 }
 
 a:active {
-text-decoration: none;
+    text-decoration: none;
 }
 
 #page-container {
-position: relative;
-min-height: 100vh;
+    position: relative;
+    height: 100%
 }
 
 #content-wrap {
-padding-bottom: 50px;    /* Footer height */
+    padding-bottom: 5em;    /* Footer height */
 }
   
 footer {
-position: absolute;
-background-color: #212529;
-bottom: 0;
-width: 100%;
-height: 50px;            /* Footer height */
+    position: absolute;
+    background-color: #212529;
+    bottom: 0;
+    width: 100%;
+    height: 5em;            /* Footer height */
+}
+
+@media only screen and (max-width: 650px) {
+    .content-info-wrapper{
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+
+    .top-menu{
+        justify-content: center;
+    }
+    #gabagool-logo-header{
+        width: 100px;
+        height: 100px;
+        margin-left: 0;
+    }
 }
