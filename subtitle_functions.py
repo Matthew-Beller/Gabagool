@@ -14,6 +14,7 @@ class FoundSubtitleMatch:
 def find_subtitle_matches_single(source_file_video, source_file_subtitle, key_phrase_list, output_directory, ignore_spaces, ignore_punctuation, case_sensitive, save_style_num):
     if(check_if_video_file(source_file_video)):
         source_name = os.path.basename(source_file_video)
+        source_name = os.path.splitext(source_name)[0]
         key_phrase_clean = ""
         
         for phrase in key_phrase_list:
@@ -27,11 +28,11 @@ def find_subtitle_matches_single(source_file_video, source_file_subtitle, key_ph
                 key_phrase_clean = key_phrase_clean.replace(char, "")
 
         duplicate_count = 0
-        new_output_directory = os.path.join(output_directory, source_name + "_" + key_phrase_clean)
+        new_output_directory = os.path.join(output_directory, source_name + key_phrase_clean)
 
         while(os.path.isdir(new_output_directory)):
             duplicate_count +=1 
-            new_output_directory = str(os.path.join(output_directory, source_name + "_" + key_phrase_clean + "(" + str(duplicate_count) + ")"))
+            new_output_directory = str(os.path.join(output_directory, source_name + key_phrase_clean + "(" + str(duplicate_count) + ")"))
         os.mkdir(new_output_directory)
 
         os.chdir(new_output_directory)
