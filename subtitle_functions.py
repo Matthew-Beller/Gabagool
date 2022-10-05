@@ -31,7 +31,7 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase
 
     return None
 
-def find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_list, ignore_spaces, ignore_punctutation, case_sensitive, ignore_subtitle = "", ignore_video = ""):
+def find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_list, ignore_spaces, ignore_punctutation, case_sensitive, ignore_subtitle_list, ignore_video_list):
     """
     Find instances of key words within srt files found in subtitle source directroy. Matches these instances with corresponding video files in video source directory.\n
     Saves files with matching instances, video file directory, times, and contents to output directory.\n
@@ -39,7 +39,7 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
     Save sytle 0 = One large file with all videos\n
     Save style 1 = One file per sub directory\n
     Appends existing files same names file is found.\n
-    ignore_subtitle and ignore_video arguments ignore certain phrases with subtitle and video file names when pairing these files together\n
+    ignore_subtitle_list and ignore_video arguments_list ignore certain phrases with subtitle and video file names when pairing these files together\n
     """
     source_name = os.path.splitext(os.path.basename(source_directory_subtitle))[0]
     key_phrase_clean = ""
@@ -57,18 +57,27 @@ def find_video_matches(source_directory_subtitle, source_directory_video, output
     os.chdir(output_directory)
     if(save_style_num != 0):
         output_root = create_directory_tree_without_files(source_directory_video, output_directory, source_name + "_found_entries" + str(key_phrase_clean))
+    else:
+        duplicate_count = 0
+        output_root = os.path.join(output_directory, source_name + "_found_entries" + str(key_phrase_clean))
+
+        while(os.path.isdir(output_root)):
+            duplicate_count +=1 
+            output_root = str(os.path.join(output_directory, source_name + "_found_entries" + str(key_phrase_clean) + "(" + str(duplicate_count) + ")"))
+        os.mkdir(output_root)
+        os.chdir(output_root)
+
     for root, dirs, files in os.walk(source_directory_video):
         for file in files:
             file_path = os.path.join(root, file)
             if(os.path.isfile(file_path) and check_if_video_file(file_path)):
-                subtitle_file = find_subtitle_file(source_directory_subtitle, file, ignore_subtitle, ignore_video)
+                subtitle_file = find_subtitle_file(source_directory_subtitle, file, ignore_subtitle_list, ignore_video_list)
                 if(subtitle_file != None):
                     if(save_style_num != 0):
                         os.chdir(os.path.join(output_root, os.path.relpath(root, source_directory_video)))
                     found_matches_file = find_output_file(file, save_style_num, key_phrase_list, source_directory_video, os.path.split(root)[1])
                     found_entries = find_matching_entries(subtitle_file, key_phrase_list, file_path, ignore_spaces, ignore_punctutation, case_sensitive)
                     for found_entry in found_entries:
-                        print("here")
                         # In srt library, proprietary information is stored after time stamp
                         # To store directory of source video file, path is written in place of the proprietary information
                         found_entry.proprietary = file_path
@@ -154,7 +163,7 @@ def find_output_file(file_name, save_style_num, key_phrase_list, source_director
 
     return found_matches_file
 
-def clean_input(file_name, ignore_phrase = ""):
+def clean_input(file_name, ignore_phrase_list):
     """
     Removes special characters and spaces from strings.\n
     Removes ignore phrase if specified.\n
@@ -162,7 +171,8 @@ def clean_input(file_name, ignore_phrase = ""):
     Returns cleaned string
     
     """
-    file_name_clean = file_name.replace(ignore_phrase, "")
+    for phrase in ignore_phrase_list:
+        file_name_clean = file_name.replace(phrase, "")
 
     # Removes special characters
     file_name_clean = ''.join(filter(str.isalnum, file_name_clean))

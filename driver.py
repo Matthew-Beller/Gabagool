@@ -38,9 +38,9 @@ def prompt_user():
     single_file_subtitle.add_argument('--case_sensitive', metavar="Case Sensitive Search", help=" Recognize Case", widget="CheckBox", action="store_true", default=False)
 
     batch_files_subtitle.add_argument('source_directory_video', metavar="Video Files Directory", widget="DirChooser")
-    batch_files_subtitle.add_argument('--ignore_video', metavar="Ignore Phrase Video", help="Ignore a certain phrase in video file names", default="", type=str, required=False)
+    batch_files_subtitle.add_argument('--ignore_video_input_raw', metavar="Ignore Phrase Video", help="Ignore a certain phrase in video file names. Delimit lists of phrases with |@|", default="", type=str, required=False)
     batch_files_subtitle.add_argument('source_directory_subtitle', metavar="Subtitle Files Directory", widget="DirChooser")
-    batch_files_subtitle.add_argument('--ignore_subtitle', metavar="Ignore Phrase Subtitle", help="Ignore a certain phrase in subtitle file names", default="", type=str, required=False)
+    batch_files_subtitle.add_argument('--ignore_subtitle_input_raw', metavar="Ignore Phrase Subtitle", help="Ignore a certain phrase in subtitle file names.  Delimit lists of phrases with |@|", default="", type=str, required=False)
     batch_files_subtitle.add_argument('key_phrase_input_raw', metavar="Search Phrases", help="Delimit lists of keywords with |@|", type=str)
     batch_files_subtitle.add_argument("save_style", metavar="Save Style", widget="Dropdown", choices=['One file', 'File for each folder', 'File for each video'])
     batch_files_subtitle.add_argument('output_directory', metavar="Output Directory", widget="DirChooser")
@@ -75,10 +75,12 @@ def main():
 
     elif(args.action == 'Batch_Subtitle_Files'):
         source_directory_video = args.source_directory_video
-        ignore_video = args.ignore_video
+        ignore_video_input_raw = args.ignore_video_input_raw
+        ignore_video_list = ignore_video_input_raw.split('|@|')
 
         source_directory_subtitle = args.source_directory_subtitle
-        ignore_subtitle = args.ignore_subtitle
+        ignore_subtitle_input_raw = args.ignore_subtitle_input_raw
+        ignore_subtitle_list = ignore_subtitle_input_raw.split('|@|')
 
         key_phrase_input_raw = args.key_phrase_input_raw
         key_phrase_list = key_phrase_input_raw.split('|@|')
@@ -114,7 +116,28 @@ def main():
 
     if(args.action == 'Single_Subtitle_File'):
         if(subtitle_functions.check_if_video_file(source_file_video)):
-            os.chdir(output_directory)
+            source_name = os.path.basename(source_file_video)
+            key_phrase_clean = ""
+            
+            for phrase in key_phrase_list:
+                key_phrase_clean = key_phrase_clean + "_" + str(phrase)
+
+            key_phrase_clean = key_phrase_clean.replace(' ', '_')
+
+            punctuation_list = '''!{};:'"\,<>./?@#$%^&*~'''
+            for char in key_phrase_clean:
+                if char in punctuation_list:
+                    key_phrase_clean = key_phrase_clean.replace(char, "")
+
+            duplicate_count = 0
+            new_output_directory = os.path.join(output_directory, source_name + "_" + key_phrase_clean)
+
+            while(os.path.isdir(new_output_directory)):
+                duplicate_count +=1 
+                new_output_directory = str(os.path.join(output_directory, source_name + "_" + key_phrase_clean + "(" + str(duplicate_count) + ")"))
+            os.mkdir(new_output_directory)
+
+            os.chdir(new_output_directory)
             found_matches_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num, key_phrase_list)
             found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase_list, source_file_video, ignore_spaces, ignore_punctuation, case_sensitive)
 
@@ -126,7 +149,7 @@ def main():
             print("Invalid video file.")
             
     elif(args.action == 'Batch_Subtitle_Files'):
-        subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_list, ignore_spaces, ignore_punctuation, case_sensitive, ignore_subtitle, ignore_video)
+        subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_list, ignore_spaces, ignore_punctuation, case_sensitive, ignore_subtitle_list, ignore_video_list)
         print("Done")
 
     elif(args.action == 'Create_Video_File'):
