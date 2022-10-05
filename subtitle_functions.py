@@ -12,6 +12,40 @@ class FoundSubtitleMatch:
         self.end = end
         self.content = content
 
+def find_subtitle_matches_single(source_file_video, source_file_subtitle, key_phrase_list, output_directory, ignore_spaces, ignore_punctuation, case_sensitive, save_style_num):
+    if(check_if_video_file(source_file_video)):
+        source_name = os.path.basename(source_file_video)
+        key_phrase_clean = ""
+        
+        for phrase in key_phrase_list:
+            key_phrase_clean = key_phrase_clean + "_" + str(phrase)
+
+        key_phrase_clean = key_phrase_clean.replace(' ', '_')
+
+        punctuation_list = '''!{};:'"\,<>./?@#$%^&*~'''
+        for char in key_phrase_clean:
+            if char in punctuation_list:
+                key_phrase_clean = key_phrase_clean.replace(char, "")
+
+        duplicate_count = 0
+        new_output_directory = os.path.join(output_directory, source_name + "_" + key_phrase_clean)
+
+        while(os.path.isdir(new_output_directory)):
+            duplicate_count +=1 
+            new_output_directory = str(os.path.join(output_directory, source_name + "_" + key_phrase_clean + "(" + str(duplicate_count) + ")"))
+        os.mkdir(new_output_directory)
+
+        os.chdir(new_output_directory)
+        found_matches_file = find_output_file(os.path.basename(source_file_video), save_style_num, key_phrase_list)
+        found_entries = find_matching_entries(source_file_subtitle, key_phrase_list, source_file_video, ignore_spaces, ignore_punctuation, case_sensitive)
+
+        for found_entry in found_entries:
+            found_entry.proprietary = source_file_video
+            found_matches_file.write(found_entry.to_srt())
+        found_matches_file.close()
+    else:
+        print("Invalid video file.")
+
 def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase_subtitle = "", ignore_phrase_video = "", comparison_tolerance = 0.70):
     """
     Matches subtitle file to video file based on file names.\n
@@ -31,7 +65,7 @@ def find_subtitle_file(source_directory_subtitle, video_file_name, ignore_phrase
 
     return None
 
-def find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_list, ignore_spaces, ignore_punctutation, case_sensitive, ignore_subtitle_list, ignore_video_list):
+def find_subtitle_matches_batch(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_list, ignore_spaces, ignore_punctutation, case_sensitive, ignore_subtitle_list, ignore_video_list):
     """
     Find instances of key words within srt files found in subtitle source directroy. Matches these instances with corresponding video files in video source directory.\n
     Saves files with matching instances, video file directory, times, and contents to output directory.\n

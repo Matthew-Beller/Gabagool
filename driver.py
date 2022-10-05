@@ -115,41 +115,10 @@ def main():
 
 
     if(args.action == 'Single_Subtitle_File'):
-        if(subtitle_functions.check_if_video_file(source_file_video)):
-            source_name = os.path.basename(source_file_video)
-            key_phrase_clean = ""
-            
-            for phrase in key_phrase_list:
-                key_phrase_clean = key_phrase_clean + "_" + str(phrase)
-
-            key_phrase_clean = key_phrase_clean.replace(' ', '_')
-
-            punctuation_list = '''!{};:'"\,<>./?@#$%^&*~'''
-            for char in key_phrase_clean:
-                if char in punctuation_list:
-                    key_phrase_clean = key_phrase_clean.replace(char, "")
-
-            duplicate_count = 0
-            new_output_directory = os.path.join(output_directory, source_name + "_" + key_phrase_clean)
-
-            while(os.path.isdir(new_output_directory)):
-                duplicate_count +=1 
-                new_output_directory = str(os.path.join(output_directory, source_name + "_" + key_phrase_clean + "(" + str(duplicate_count) + ")"))
-            os.mkdir(new_output_directory)
-
-            os.chdir(new_output_directory)
-            found_matches_file = subtitle_functions.find_output_file(os.path.basename(source_file_video), save_style_num, key_phrase_list)
-            found_entries = subtitle_functions.find_matching_entries(source_file_subtitle, key_phrase_list, source_file_video, ignore_spaces, ignore_punctuation, case_sensitive)
-
-            for found_entry in found_entries:
-                found_entry.proprietary = source_file_video
-                found_matches_file.write(found_entry.to_srt())
-            found_matches_file.close()
-        else:
-            print("Invalid video file.")
+        subtitle_functions.find_subtitle_matches_single(source_file_video, source_file_subtitle, key_phrase_list, output_directory, ignore_spaces, ignore_punctuation, case_sensitive, save_style_num)
             
     elif(args.action == 'Batch_Subtitle_Files'):
-        subtitle_functions.find_video_matches(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_list, ignore_spaces, ignore_punctuation, case_sensitive, ignore_subtitle_list, ignore_video_list)
+        subtitle_functions.find_subtitle_matches_batch(source_directory_subtitle, source_directory_video, output_directory, save_style_num, key_phrase_list, ignore_spaces, ignore_punctuation, case_sensitive, ignore_subtitle_list, ignore_video_list)
         print("Done")
 
     elif(args.action == 'Create_Video_File'):
@@ -159,9 +128,6 @@ def main():
             video_editing_functions.saveAsIndividualClips(source_file_subtitle_found, output_directory, buffer_time_start, buffer_time_end)
     else:
         pass
-
-# allow for multiple ignore phrases
-
 
 if __name__ == '__main__':
     main()
