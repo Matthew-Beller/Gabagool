@@ -1,6 +1,5 @@
 import os
 from difflib import SequenceMatcher
-from numpy import extract, number
 import srt
 import subprocess
 import chardet

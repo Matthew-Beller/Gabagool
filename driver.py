@@ -1,9 +1,6 @@
 from numpy import empty
-import srt
 import os
 from gooey import Gooey, GooeyParser
-import argparse
-from difflib import SequenceMatcher
 
 import subtitle_functions
 import video_editing_functions

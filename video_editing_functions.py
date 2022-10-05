@@ -1,18 +1,10 @@
 from __future__ import unicode_literals
 from __future__ import print_function
-import sys
-from time import sleep
-from gooey import Gooey, GooeyParser
 
-from xml.dom import IndexSizeErr
-from moviepy.editor import VideoFileClip, concatenate_videoclips
-from numpy import source
 import srt
 import os
-from datetime import timedelta
 import datetime
 import tempfile
-import time
 import subprocess
 import math
 
@@ -67,7 +59,6 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
 
       video_number = 1
       source_name = os.path.splitext(os.path.basename(subtitle_source))[0]
-      start_loading = time.time()
       with open(subtitle_source, encoding='utf-8') as file:
          subtitle_generator = srt.parse(file)
 
@@ -100,7 +91,6 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
          process = subprocess.run(['ffmpeg', '-loglevel', 'error', '-ss', '%s' % (str(entry.start)[:11]), '-i', '%s' % (str(entry.proprietary)), '-to', (str(entry.end-entry.start)[:11]), '-map', '0', '%s' % (str(source_name + "_" + str(video_number).zfill(max_numbers_places) + ".mp4").replace(' ', '_'))])
          video_number += 1
          print(f"progress: {video_number}/{total_clips}")
-      end_clipping = time.time()
       os.chdir(temp_dir)
       file_list = os.listdir(temp_dir)
 
@@ -118,7 +108,6 @@ def mergeMultipleClips(subtitle_source, output_directory, buffer_seconds_start, 
       while(os.path.isfile(output_path_string)):
          duplicate_count +=1 
          output_path_string = str(os.path.join(str(os.path.abspath(output_directory)), source_name + "(" + str(duplicate_count) + ")") + ".mp4")
-      start_concat = time.time()
       try:
          process = subprocess.run(['ffmpeg', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', '%s' % (input_path_string), '-c', 'copy', '%s' % (output_path_string)])
       except:
