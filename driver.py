@@ -1,4 +1,3 @@
-from numpy import empty
 import os
 from gooey import Gooey, GooeyParser
 
