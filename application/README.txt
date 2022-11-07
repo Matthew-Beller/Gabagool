@@ -1,5 +1,3 @@
-# Gabagool
-
 Gabagool is an automated video editing program that uses subtitle files to edit videos.
 This program works by searching subtitle files for user entered key words, then creating clips of every instance of these key words from source video files.
 
