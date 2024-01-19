@@ -20,3 +20,12 @@ Due to the inconsistency of subtitle and video file quality, it is recommended t
 After building subtitle found matches file, do NOT alter the file structure or names of the source video files used in the search. This causes file not found errors when creating and saving video clips.
 
 If the file structure of the source video files is altered, regenerate the subtitle matches file before use.
+
+## Example Pages
+
+
+![Example Single Subtitle File](https://github.com/Matthew-Beller/Gabagool/blob/main/example_images/gabagool_single_subtitle_file.PNG)
+
+![Example Batch Subtitles](https://github.com/Matthew-Beller/Gabagool/blob/main/example_images/gabagool_batch_subtitle_files.PNG) 
+
+![Example Create Video File](https://github.com/Matthew-Beller/Gabagool/blob/main/example_images/gabagool_create_video_file.PNG)
